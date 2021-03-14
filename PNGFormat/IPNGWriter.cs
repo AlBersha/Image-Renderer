@@ -1,6 +1,8 @@
 namespace PNGFormat
 {
-    public interface IPNGWriter
+    using ConverterBase.Writers;
+
+    public interface IPNGWriter : IImageWriter
     {
         
     }

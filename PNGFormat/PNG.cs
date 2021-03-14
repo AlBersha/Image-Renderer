@@ -1,6 +1,8 @@
 namespace PNGFormat
 {
-    public class PNG
+    using ConverterBase;
+
+    public class PNG : IImage
     {
         
     }
