@@ -2,11 +2,6 @@
 
 namespace Renderer
 {
-    using ConverterBase;
-    using ConverterBase.Readers;
-    using ConverterBase.Writers;
-    using GifFormat;
-
     class Program
     {
         static void Main(string[] args)
@@ -47,35 +42,9 @@ namespace Renderer
             {
                 outputFile = sourceFile;
             }
-
-            // IImageReader imageReader;
-            // IImageWriter imageWriter;
-            //
-            // switch (sourceFile)
-            // {
-            //     case "gif":
-            //     {
-            //         imageReader = new GifReader();
-            //         break;
-            //     }
-            // }
-            //
-            // switch (goalFormat)
-            // {
-            //     case "gif":
-            //     {
-            //         imageWriter = new GifWriter();
-            //         break;
-            //     }
-            //     case "png":
-            //     {
-            //         imageWriter = new PngWriter();
-            //         break;
-            //     }
-            //         
-            // }
-            //
-            // Converter converter = new Converter(imageReader, imageWriter);
+            
+            
+            
         }
     }
 }
