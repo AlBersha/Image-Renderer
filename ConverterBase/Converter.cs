@@ -1,5 +1,3 @@
-using ConverterBase.Readers;
-
 namespace ConverterBase
 {
     using Readers;
@@ -9,7 +7,7 @@ namespace ConverterBase
     {
         public IImageReader ImageReader { get; set; }
         public IImageWriter ImageWriter { get; set; }
-        
+
         public Converter(IImageReader imageReader, IImageWriter imageWriter)
         {
             ImageReader = imageReader;
@@ -22,7 +20,6 @@ namespace ConverterBase
             ImageWriter.Write(imageData);
 
             return "output path";
-            
         }
     }
 }
