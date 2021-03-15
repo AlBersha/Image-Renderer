@@ -2,6 +2,6 @@ namespace ConverterBase.Writers
 {
     public interface IImageWriter
     {
-        public IImage Write();
+        public string Write(IImage image);
     }
 }
