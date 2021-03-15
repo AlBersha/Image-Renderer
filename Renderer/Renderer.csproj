@@ -6,9 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BMPReader\BMPReader.csproj" />
-      <ProjectReference Include="..\PNGFormat\PNGFormat.csproj" />
-      <ProjectReference Include="..\PPMFormat\PPMFormat.csproj" />
+      <ProjectReference Include="..\ConverterBase\ConverterBase.csproj" />
     </ItemGroup>
 
 </Project>

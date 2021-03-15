@@ -9,17 +9,45 @@ namespace Renderer
     {
         static void Main(string[] args)
         {
-            string path = "C:\\Users\\Alexandra\\Desktop\\do_it.bmp";
+            var sourceFile = "";
+            var goalFormat = "";
+            var outputFile = "";
             
-            // PPMReader ppmreader = new PPMReader();
-            // IImage image = ppmreader.ReadImage(path);
+            foreach (var arg in args)
+            {
+                if (arg.StartsWith("--source="))
+                {
+                    sourceFile = arg.Substring(arg.IndexOf('=') + 1);
+                };
+                
+                if (arg.StartsWith("--goal-format"))
+                {
+                    goalFormat = arg.Substring(arg.IndexOf('=') + 1);
+                }
+
+                if (arg.StartsWith("--output"))
+                {
+                    outputFile = arg.Substring(arg.IndexOf('=') + 1);
+                }
+            }
+
+            if (sourceFile == "")
+            {
+                Console.WriteLine("Argument --source is either entered incorrectly or is missing");
+            }
+
+            if (goalFormat == "")
+            {
+                Console.WriteLine("Argument --source is either entered incorrectly or is missing");
+            }
+
+            if (outputFile == "")
+            {
+                outputFile = sourceFile;
+            }
             
-            // string outputPath = "D:\\KPI\\#graphics\\result.ppm";
-            // PPMWriter ppmWriter = new PPMWriter();
-            // ppmWriter.WriteImage(image, outputPath);
             
-            BMPReader bmpReader = new BMPReader();
-            IImage image = bmpReader.ReadImage(path);
+            
         }
     }
 }
