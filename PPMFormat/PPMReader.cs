@@ -4,10 +4,11 @@ namespace PPMFormat
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using ConverterBase;
 
     public class PPMReader: IPPMReader
     {
-        public List<List<Pixel>> ReadPPM(string path)
+        public IImage ReadPPM(string path)
         {
             string[] lines = File.ReadAllLines(path);
             PPM ppmFileData = new PPM();
@@ -54,17 +55,17 @@ namespace PPMFormat
 
                 if (isNumber)
                 {
-                    List<Pixel> pixels = new List<Pixel>();
+                    List<RGB> pixels = new List<RGB>();
                     for (int i = 0; i < ppmFileData.Width; i++)
                     {
-                        Pixel item = new Pixel();
-                        var tmp = int.TryParse(words[0], out item.R);
+                        RGB item = new RGB();
+                        var tmp = byte.TryParse(words[0], out item.Red);
                         words.RemoveAt(0);
                         
-                        tmp = int.TryParse(words[0], out item.G);
+                        tmp = byte.TryParse(words[0], out item.Green);
                         words.RemoveAt(0);
                         
-                        tmp = int.TryParse(words[0], out item.B);
+                        tmp = byte.TryParse(words[0], out item.Blue);
                         words.RemoveAt(0);
 
                         pixels.Add(item);
@@ -74,7 +75,7 @@ namespace PPMFormat
                 }
             }
 
-            return ppmFileData.Data;
+            return ppmFileData;
         }
     }
 }

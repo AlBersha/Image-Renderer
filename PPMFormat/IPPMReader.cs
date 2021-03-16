@@ -1,9 +1,10 @@
 namespace PPMFormat
 {
     using System.Collections.Generic;
+    using ConverterBase;
 
     public interface IPPMReader
     {
-        public List<List<Pixel>> ReadPPM(string path);
+        public IImage ReadPPM(string path);
     }
 }
