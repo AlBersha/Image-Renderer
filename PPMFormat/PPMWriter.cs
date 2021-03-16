@@ -7,7 +7,7 @@ namespace PPMFormat
 
     public class PPMWriter: IPPMWriter
     {
-        public bool Write(IImage image, string outputPath)
+        public bool WriteImage(IImage image, string outputPath)
         {
             List<string> fileData = new List<string>();
             fileData.Add("P3");

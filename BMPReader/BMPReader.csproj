@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BMPReader\BMPReader.csproj" />
-      <ProjectReference Include="..\PPMFormat\PPMFormat.csproj" />
+      <ProjectReference Include="..\ConverterBase\ConverterBase.csproj" />
     </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@ namespace PPMFormat
 
     public class PPMReader: IPPMReader
     {
-        public IImage ReadPPM(string path)
+        public IImage ReadImage(string path)
         {
             string[] lines = File.ReadAllLines(path);
             PPM ppmFileData = new PPM();

@@ -7,6 +7,6 @@ namespace PPMFormat
 
     public interface IPPMWriter: IImageWriter
     {
-        public bool Write(IImage imageData, string outputPath);
+        public bool WriteImage(IImage imageData, string outputPath);
     }
 }

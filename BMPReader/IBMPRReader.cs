@@ -1,10 +1,9 @@
-namespace PPMFormat
+namespace BMPReader
 {
-    using System.Collections.Generic;
     using ConverterBase;
     using ConverterBase.Readers;
 
-    public interface IPPMReader: IImageReader
+    public interface IBMPRReader: IImageReader
     {
         public IImage ReadImage(string path);
     }
