@@ -1,13 +1,18 @@
 namespace GifFormat
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using ConverterBase;
 
     public class GifReader : IGifReader
     {
-        public GIF GIF { get; set; }
+        private GIF GIF { get; set; }
 
+        public GifReader()
+        {
+            GIF = new GIF();
+        }
         
         public IImage Read(string path)
         {
@@ -82,24 +87,70 @@ namespace GifFormat
                     var lzwMinCodeLength = br.ReadByte() + 1;
                     var flag = true;
 
+                    // List<string> initialCodeTable = new List<string>();
+                    //
+                    // for (var i = 0; i < GIF.ColorTable.Count; i++)
+                    // {
+                    //     initialCodeTable.Add(i.ToString());
+                    // }
+                    //initialCodeTable.Add("CC");
+                    //initialCodeTable.Add("EOI");
                     //read image data
+                    var decompressedData = "";
                     while (flag)
                     {
                         var subBlockLength = br.ReadByte();
                         var subBlockImageData = new byte[subBlockLength];
 
                         subBlockImageData = br.ReadBytes(subBlockLength);
-
+                        
+                        var compressor = new LZWCompressor();
+                        decompressedData += compressor.Decompress(subBlockImageData, lzwMinCodeLength, GIF.ColorTable);
+                        
                         //if this byte is 0, it`s end of frame, otherwise it`s length of next sub block
                         subBlockLength = br.ReadByte();
                         flag = subBlockLength != 0;
                     }
+                    ConvertByteToRGB(decompressedData);
 
+                    foreach (var list in GIF.ImageData)
+                    {
+                        foreach (var pixel in list)
+                        {
+                            Console.Write($"{pixel.Red:X} {pixel.Green:X} {pixel.Blue:X} | ");
+                            
+                        }
+                        Console.WriteLine();
+                    }
+                    
                 }
             }
 
             return GIF;
         }
 
+        private void ConvertByteToRGB(string byteData)
+        {
+            for (var i = 0; i < GIF.ImageDescriptor.Width; i++)
+            {
+                var pixels = new List<RGB>();
+                
+                for (var j = 0; j < GIF.ImageDescriptor.Height; j++)
+                {
+                    var red = byteData.Substring(i * GIF.ImageDescriptor.Width * 24 + j * 24, 8);
+                    var green = byteData.Substring(i * GIF.ImageDescriptor.Width * 24 + j * 24 + 8, 8);
+                    var blue = byteData.Substring(i * GIF.ImageDescriptor.Width * 24+ j * 24 + 16, 8);
+                    pixels.Add(new RGB()
+                    {
+                        Red = Convert.ToByte(red,2),
+                        Green = Convert.ToByte(green,2),
+                        Blue = Convert.ToByte(blue,2)
+                    });
+
+                }
+                GIF.ImageData.Add(pixels);
+            }
+        }
+        
     }
 }
