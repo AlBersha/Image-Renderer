@@ -7,6 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ConverterBase\ConverterBase.csproj" />
+      <ProjectReference Include="..\GifFormat\GifFormat.csproj" />
     </ItemGroup>
 
 </Project>
