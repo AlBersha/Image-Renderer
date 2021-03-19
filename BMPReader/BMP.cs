@@ -27,6 +27,9 @@ namespace BMPReader
     public class BMP: IImage
     {
         public BMPHeader BmpHeader;
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public byte BitDepth { get; set; }
         public List<List<RGB>> Data { get; set; }
 
         public BMP()

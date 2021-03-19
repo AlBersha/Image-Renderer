@@ -11,8 +11,8 @@ namespace PPMFormat
         {
             List<string> fileData = new List<string>();
             fileData.Add("P3");
-            int width = image.Data[0].Count;
-            int height = image.Data.Count;
+            int width = image.Width;
+            int height = image.Height;
             int colorRange = FindColorRange(image.Data);
             
             fileData.Add(width.ToString() + ' ' + height.ToString());

@@ -7,9 +7,9 @@ namespace PPMFormat
     {
         public string Type;
         public string Comments;
-        public int Width;
-        public int Height;
-        public int ColorRange;
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public byte BitDepth { get; set; }
         public List<List<RGB>> Data { get; set; }
 
         public PPM()
@@ -18,7 +18,7 @@ namespace PPMFormat
             Comments = "";
             Width = 0;
             Height = 0;
-            ColorRange = 0;
+            BitDepth = 0;
             Data = new List<List<RGB>>();
         }
 

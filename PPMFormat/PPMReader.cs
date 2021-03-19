@@ -40,15 +40,15 @@ namespace PPMFormat
 
                     if (words.Count > 2)
                     {
-                        ppmFileData.ColorRange = int.Parse(words[2]);
+                        ppmFileData.BitDepth = byte.Parse(words[2]);
                     }
                     
                     continue;
                 }
 
-                if (isNumber && ppmFileData.ColorRange == 0) 
+                if (isNumber && ppmFileData.BitDepth == 0) 
                 {
-                    ppmFileData.ColorRange = int.Parse(words[0]);
+                    ppmFileData.BitDepth = byte.Parse(words[0]);
                     
                     continue;
                 }
