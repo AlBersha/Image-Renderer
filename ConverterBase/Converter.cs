@@ -2,6 +2,7 @@ using ConverterBase.Readers;
 
 namespace ConverterBase
 {
+    using System;
     using Readers;
     using Writers;
 
@@ -16,12 +17,12 @@ namespace ConverterBase
             ImageWriter = imageWriter;
         }
         
-        public string Convert()
+        public string Convert(string path)
         {
-            var imageData = ImageReader.Read("path");
-            ImageWriter.Write(imageData);
+            var imageData = ImageReader.Read(path);
+            ImageWriter.Write(imageData,path);
 
-            return "output path";
+            return path;
             
         }
     }

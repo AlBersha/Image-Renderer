@@ -8,6 +8,7 @@
     <ItemGroup>
       <ProjectReference Include="..\ConverterBase\ConverterBase.csproj" />
       <ProjectReference Include="..\GifFormat\GifFormat.csproj" />
+      <ProjectReference Include="..\PPMFormat\PPMFormat.csproj" />
     </ItemGroup>
 
 </Project>
