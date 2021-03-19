@@ -8,6 +8,6 @@ namespace ConverterBase
         public IImageReader ImageReader { get; set; }
         public IImageWriter ImageWriter { get; set; }
         
-        public string Convert();
+        public string Convert(string path);
     }
 }

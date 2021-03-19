@@ -28,9 +28,9 @@ namespace PPMFormat
                 }
                 fileData.Add(row);
             }
-            
-            File.WriteAllLines(outputPath, fileData);
-            return true;
+
+            File.WriteAllLines(outputPath + ".ppm", fileData);
+            return outputPath;
         }
 
         private int FindColorRange(List<Pixel> array)

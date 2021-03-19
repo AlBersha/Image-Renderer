@@ -13,144 +13,267 @@ namespace GifFormat
         {
             GIF = new GIF();
         }
-        
+
         public IImage Read(string path)
         {
-            using (var stream = File.OpenRead(path))
+            using (var stream = File.OpenRead(path + ".gif"))
             {
                 using (var br = new BinaryReader(stream))
                 {
-                    //Read GIF header
-                    GIF.Header.Signature = br.ReadBytes(3);
-                    GIF.Header.Version = br.ReadBytes(3);
-                    GIF.Header.ScreenWidth = br.ReadInt16();
-                    GIF.Header.ScreenHeight = br.ReadInt16();
-                    GIF.Header.Packed = br.ReadByte();
-                    GIF.Header.BackgroundColor = br.ReadByte();
-                    GIF.Header.AspectRatio = br.ReadByte();
+                    ReadHeader(br);
+                    ReadGlobalColorTable(br);
 
-                    var globalColorTableFlag = (GIF.Header.Packed >> 7) & 1;
-
-                    if (globalColorTableFlag == 1)
-                    {
-                        //Bits 0-2 size of the Global Color Table 2^(N+1)
-                        var size = GIF.Header.Packed & ((1 << 3) - 1);
-                        var numberOfColorsInGlobalTable = (1 << (size + 1));
-
-                        //Read Global Color Table
-                        for (var i = 0; i < numberOfColorsInGlobalTable; i++)
-                        {
-                            GIF.ColorTable.Add(new RGB
-                            {
-                                Red = br.ReadByte(),
-                                Green = br.ReadByte(),
-                                Blue = br.ReadByte()
-                            });
-                        }
-                    }
-
-                    //find image descriptor flag(this indicates the beginning of the frame)
-                    byte currentByte = 0;
-                    while (currentByte != 0x2C)
-                    {
-                        currentByte = br.ReadByte();
-                    }
-
-                    //Read image descriptor info
-                    GIF.ImageDescriptor.Left = br.ReadInt16();
-                    GIF.ImageDescriptor.Top = br.ReadInt16();
-                    GIF.ImageDescriptor.Width = br.ReadInt16();
-                    GIF.ImageDescriptor.Height = br.ReadInt16();
-                    GIF.ImageDescriptor.Packed = br.ReadByte();
-
-                    var localColorTableFlag = (GIF.ImageDescriptor.Packed >> 7) & 1;
-
-                    if (localColorTableFlag == 1)
-                    {
-                        //Bits 0-2 size of the Local Color Table 2^(N+1)
-                        var size = GIF.ImageDescriptor.Packed & ((1 << 3) - 1);
-                        var numberOfColorsInLocalTable = (1 << (size + 1));
-
-                        GIF.ColorTable.Clear();
-                        //Read Global Color Table
-                        for (var i = 0; i < numberOfColorsInLocalTable; i++)
-                        {
-                            GIF.ColorTable.Add(new RGB
-                            {
-                                Red = br.ReadByte(),
-                                Green = br.ReadByte(),
-                                Blue = br.ReadByte()
-                            });
-                        }
-                    }
-
-                    var lzwMinCodeLength = br.ReadByte() + 1;
                     var flag = true;
-
-                    // List<string> initialCodeTable = new List<string>();
-                    //
-                    // for (var i = 0; i < GIF.ColorTable.Count; i++)
-                    // {
-                    //     initialCodeTable.Add(i.ToString());
-                    // }
-                    //initialCodeTable.Add("CC");
-                    //initialCodeTable.Add("EOI");
-                    //read image data
-                    var decompressedData = "";
                     while (flag)
                     {
-                        var subBlockLength = br.ReadByte();
-                        var subBlockImageData = new byte[subBlockLength];
-
-                        subBlockImageData = br.ReadBytes(subBlockLength);
-                        
-                        var compressor = new LZWCompressor();
-                        decompressedData += compressor.Decompress(subBlockImageData, lzwMinCodeLength, GIF.ColorTable);
-                        
-                        //if this byte is 0, it`s end of frame, otherwise it`s length of next sub block
-                        subBlockLength = br.ReadByte();
-                        flag = subBlockLength != 0;
-                    }
-                    ConvertByteToRGB(decompressedData);
-
-                    foreach (var list in GIF.ImageData)
-                    {
-                        foreach (var pixel in list)
+                        var code = br.ReadByte();
+                        switch (code)
                         {
-                            Console.Write($"{pixel.Red:X} {pixel.Green:X} {pixel.Blue:X} | ");
-                            
-                        }
-                        Console.WriteLine();
-                    }
-                    
-                }
-            }
+                            case 0x2C:
+                            {
+                                ReadImageDescriptor(br);
+                                ReadLocalColorTable(br);
+                                ReadImageData(br);
+                                //readImage
+                                flag = false;
+                                break;
+                            }
+                            case 0x21:
+                            {
+                                var extensionBlock = br.ReadByte();
+                                switch (extensionBlock)
+                                {
+                                    case 0xF9:
+                                    {
+                                        ReadGraphicControlExtensionBlock(br);
+                                        break;
+                                    }
+                                    case 0x01:
+                                    {
+                                        ReadPlainTextExtensionBlock(br);
+                                        break;
+                                    }
+                                    case 0xFF:
+                                    {
+                                        ReadApplicationExtensionBlock(br);
+                                        break;
+                                    }
+                                    case 0xFE:
+                                    {
+                                        ReadCommentExtensionBlock(br);
+                                        break;
+                                    }
+                                }
 
-            return GIF;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return GIF;
+            }
         }
 
-        private void ConvertByteToRGB(string byteData)
+        private void ReadHeader(BinaryReader br)
         {
-            for (var i = 0; i < GIF.ImageDescriptor.Width; i++)
-            {
-                var pixels = new List<RGB>();
-                
-                for (var j = 0; j < GIF.ImageDescriptor.Height; j++)
-                {
-                    var red = byteData.Substring(i * GIF.ImageDescriptor.Width * 24 + j * 24, 8);
-                    var green = byteData.Substring(i * GIF.ImageDescriptor.Width * 24 + j * 24 + 8, 8);
-                    var blue = byteData.Substring(i * GIF.ImageDescriptor.Width * 24+ j * 24 + 16, 8);
-                    pixels.Add(new RGB()
-                    {
-                        Red = Convert.ToByte(red,2),
-                        Green = Convert.ToByte(green,2),
-                        Blue = Convert.ToByte(blue,2)
-                    });
+            //Read GIF header
+            GIF.Header.Signature = br.ReadBytes(3);
+            GIF.Header.Version = br.ReadBytes(3);
+            GIF.Header.ScreenWidth = br.ReadInt16();
+            GIF.Header.ScreenHeight = br.ReadInt16();
+            GIF.Header.Packed = br.ReadByte();
+            GIF.Header.BackgroundColor = br.ReadByte();
+            GIF.Header.AspectRatio = br.ReadByte();
+        }
 
+        private void ReadGlobalColorTable(BinaryReader br)
+        {
+            var globalColorTableFlag = (GIF.Header.Packed >> 7) & 1;
+
+            if (globalColorTableFlag == 1)
+            {
+                //Bits 0-2 size of the Global Color Table 2^(N+1)
+                var size = GIF.Header.Packed & ((1 << 3) - 1);
+                var numberOfColorsInGlobalTable = (1 << (size + 1));
+
+                //Read Global Color Table
+                for (var i = 0; i < numberOfColorsInGlobalTable; i++)
+                {
+                    GIF.ColorTable.Add(new RGB
+                    {
+                        Red = br.ReadByte(),
+                        Green = br.ReadByte(),
+                        Blue = br.ReadByte()
+                    });
                 }
-                GIF.ImageData.Add(pixels);
             }
+        }
+
+        private void ReadLocalColorTable(BinaryReader br)
+        {
+             
+            var localColorTableFlag = (GIF.ImageDescriptor.Packed >> 7) & 1;
+                    
+            if (localColorTableFlag == 1)
+            {
+                //Bits 0-2 size of the Local Color Table 2^(N+1)
+                var size = GIF.ImageDescriptor.Packed & ((1 << 3) - 1);
+                var numberOfColorsInLocalTable = (1 << (size + 1));
+
+                GIF.ColorTable.Clear();
+                //Read Local Color Table
+                for (var i = 0; i < numberOfColorsInLocalTable; i++)
+                {
+                    GIF.ColorTable.Add(new RGB
+                    {
+                        Red = br.ReadByte(),
+                        Green = br.ReadByte(),
+                        Blue = br.ReadByte()
+                    });
+                }
+            }
+        }
+
+        private void ReadGraphicControlExtensionBlock(BinaryReader br)
+        {
+            var blockSize = br.ReadByte();
+            var packed = br.ReadByte();
+            var delayTime = br.ReadInt16();
+            var colorIndex = br.ReadByte();
+            var terminator = br.ReadByte();
+        }
+
+        private void ReadPlainTextExtensionBlock(BinaryReader br)
+        {
+            var blockSize = br.ReadByte();
+            var textGridLeft = br.ReadInt16();
+            var textGridTop = br.ReadInt16();
+            var textGridWidth = br.ReadInt16();
+            var textGridHeight = br.ReadInt16();
+            var cellWidth = br.ReadByte();
+            var cellHeight = br.ReadByte();
+            var textFgColorIndex = br.ReadByte();
+            var textBgColorIndex = br.ReadByte();
+            var plainTextData = new List<byte>();
+            
+            var subBlockLength = br.ReadByte();
+            while (subBlockLength != 0)
+            {
+                plainTextData.AddRange(br.ReadBytes(subBlockLength));
+                subBlockLength = br.ReadByte();
+            }
+        }
+
+        private void ReadApplicationExtensionBlock(BinaryReader br)
+        {
+            var blockSize = br.ReadByte();
+            var identifier = br.ReadChars(8);
+            var authentCode = br.ReadBytes(3);
+            var applicationData = new List<byte>();
+
+            var subBlockLength = br.ReadByte();
+            while (subBlockLength != 0)
+            {
+                applicationData.AddRange(br.ReadBytes(subBlockLength));
+                subBlockLength = br.ReadByte();
+            }
+        }
+
+        private void ReadCommentExtensionBlock(BinaryReader br)
+        {
+            var commentData = new List<byte>();
+
+            var subBlockLength = br.ReadByte();
+            while (subBlockLength != 0)
+            {
+                commentData.AddRange(br.ReadBytes(subBlockLength));
+                subBlockLength = br.ReadByte();
+            }
+        }
+
+        private void ReadImageDescriptor(BinaryReader br)
+        {
+            GIF.ImageDescriptor.Left = br.ReadInt16();
+            GIF.ImageDescriptor.Top = br.ReadInt16();
+            GIF.ImageDescriptor.Width = br.ReadInt16();
+            GIF.ImageDescriptor.Height = br.ReadInt16();
+            GIF.ImageDescriptor.Packed = br.ReadByte();
+        }
+
+        private void ReadImageData(BinaryReader br)
+        {
+            var lzwMinCodeLength = br.ReadByte() + 1;
+
+            var subBlockLength = br.ReadByte();
+            var imageDataBytes = new List<byte>();
+            while (subBlockLength != 0)
+            {
+                imageDataBytes.AddRange(br.ReadBytes(subBlockLength));
+                //if this byte is 0, it`s end of frame, otherwise it`s length of next sub block
+                subBlockLength = br.ReadByte();
+            }
+
+            var imageDataBits = "";
+            foreach (var currByte in imageDataBytes)
+            {
+                imageDataBits += Reverse(Convert.ToString(currByte, 2).PadLeft(8, '0'));
+            }
+            var compressor = new LZWGifCompressor();
+            var decompressedData = compressor.Decompress(imageDataBits, lzwMinCodeLength, GIF.ColorTable.Count);
+            ConvertIntToRGB(decompressedData);
         }
         
+        private string Reverse( string s )
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse( charArray );
+            return new string( charArray );
+        }
+
+        private void ConvertIntToRGB(List<int> decompressedData)
+        {
+            for (var i = 0; i < GIF.ImageDescriptor.Height; i++)
+            {
+                var pixels = new List<RGB>();
+
+                for (var j = 0; j < GIF.ImageDescriptor.Width; j++)
+                {
+                    var index = decompressedData[i * GIF.ImageDescriptor.Width + j];
+                    pixels.Add(GIF.ColorTable[index]); 
+                }
+                GIF.Data.Add(pixels);
+            }
+
+            var interlace = (GIF.ImageDescriptor.Packed >> 6) & 1;
+            if (interlace == 1)
+            {
+                List<List<RGB>> nonInterlacedImage = new List<List<RGB>>();
+                for (var i = 0; i < GIF.ImageDescriptor.Height;i++)
+                {
+                    nonInterlacedImage.Add(new List<RGB>());
+                }
+                
+                var j = 0;
+                for (var i = 0; i < GIF.ImageDescriptor.Height; i+= 8,j++)
+                {
+                    nonInterlacedImage[i] = GIF.Data[j];
+                }
+                for (var i = 4; i < GIF.ImageDescriptor.Height; i+= 8,j++)
+                {                   
+                    nonInterlacedImage[i] = GIF.Data[j];
+                }
+                for (var i = 2; i < GIF.ImageDescriptor.Height; i+= 4,j++)
+                {
+                    nonInterlacedImage[i] = GIF.Data[j];
+                }
+                for (var i = 1; i < GIF.ImageDescriptor.Height; i+= 2,j++)
+                {
+                    nonInterlacedImage[i] = GIF.Data[j];
+                }
+
+                GIF.Data = nonInterlacedImage;
+            }
+        }
     }
 }
