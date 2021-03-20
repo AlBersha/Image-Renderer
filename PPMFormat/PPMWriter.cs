@@ -18,13 +18,17 @@ namespace PPMFormat
             fileData.Add(width.ToString() + ' ' + height.ToString());
             fileData.Add(colorRange.ToString());
 
-            foreach (var line in image.Data)
+            foreach (var symbol in image.Data)
             {
                 string row = "";
-                foreach (var symbol in line)
-                {
-                    row += symbol.Red + " " + symbol.Green + " " + symbol.Blue + "   ";
-                }
+                
+                row += symbol.Red + " " + symbol.Green + " " + symbol.Blue + "   ";
+                
+                // foreach (var symbol in line)
+                // {
+                //     row += symbol.Red + " " + symbol.Green + " " + symbol.Blue + "   ";
+                // }
+                
                 fileData.Add(row);
             }
 
@@ -32,13 +36,13 @@ namespace PPMFormat
             return true;
         }
 
-        private int FindColorRange(List<List<RGB>> array)
+        private int FindColorRange(List<Pixel> array)
         {
             int max = 0;
-            foreach (var line in array)
+            foreach (var pixel in array)
             {
-                foreach (var pixel in line)
-                {
+                // foreach (var pixel in line)
+                // {
                     if (pixel.Red > max)
                     {
                         max = pixel.Red;
@@ -53,7 +57,7 @@ namespace PPMFormat
                     {
                         max = pixel.Green;
                     }
-                }
+                // }
             }
             
             return max;

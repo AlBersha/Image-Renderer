@@ -37,19 +37,18 @@ namespace BMPReader
                     {
                         for (int i = 0; i < image.BmpHeader.biWidth; i++)
                         {
-                            List<RGB> line = new List<RGB>();
+                            List<Pixel> line = new List<Pixel>();
                             for (int j = 0; j < image.BmpHeader.biHeight; j++)
                             {
-                                RGB item = new RGB();
+                                Pixel item = new Pixel();
                             
                                 item.Red = reader.ReadByte();
                                 item.Green = reader.ReadByte();
                                 item.Blue = reader.ReadByte();
 
-                                line.Add(item);
+                                image.Data.Add(item);
                             }
                         
-                            image.Data.Add(line);
                         }
                     }
                     else

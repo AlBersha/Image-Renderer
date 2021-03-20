@@ -55,10 +55,9 @@ namespace PPMFormat
 
                 if (isNumber)
                 {
-                    List<RGB> pixels = new List<RGB>();
                     for (int i = 0; i < ppmFileData.Width; i++)
                     {
-                        RGB item = new RGB();
+                        Pixel item = new Pixel();
                         var tmp = byte.TryParse(words[0], out item.Red);
                         words.RemoveAt(0);
                         
@@ -68,10 +67,8 @@ namespace PPMFormat
                         tmp = byte.TryParse(words[0], out item.Blue);
                         words.RemoveAt(0);
 
-                        pixels.Add(item);
+                        ppmFileData.Data.Add(item);
                     }
-
-                    ppmFileData.Data.Add(pixels);
                 }
             }
 

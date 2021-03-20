@@ -12,13 +12,13 @@ namespace PNGFormat
         public byte BitDepth { get; set; }
         public byte Interlace { get; set; }
         public int Gama { get; set; }
-        public List<List<RGB>> Data { get; set; }
+        public List<Pixel> Data { get; set; }
 
         public PNG()
         {
             Signature = new byte[4];
             Chunks = new List<Chunk>();
-            Data = new List<List<RGB>>();
+            Data = new List<Pixel>();
         }
     }
 }

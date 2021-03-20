@@ -30,12 +30,12 @@ namespace BMPReader
         public int Width { get; set; }
         public int Height { get; set; }
         public byte BitDepth { get; set; }
-        public List<List<RGB>> Data { get; set; }
+        public List<Pixel> Data { get; set; }
 
         public BMP()
         {
             BmpHeader.bfReserved = new short[2];
-            Data = new List<List<RGB>>();
+            Data = new List<Pixel>();
         }
     }
 }

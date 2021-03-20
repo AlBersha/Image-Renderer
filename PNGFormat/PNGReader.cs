@@ -4,6 +4,7 @@ namespace PNGFormat
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Transactions;
     using ConverterBase;
 
@@ -84,6 +85,13 @@ namespace PNGFormat
 
         private void ProcessIDAT(Chunk chunk)
         {
+            byte flagCodes = chunk.Content[0];
+            byte controlBits = chunk.Content[1];
+
+            int indexToRemove = 0;
+            chunk.Content = chunk.Content.Where((source, index) => index != indexToRemove).ToArray();
+            chunk.Content = chunk.Content.Where((source, index) => index != indexToRemove).ToArray();
+
             BitArray bitArray = new BitArray(chunk.Content);
             int counter = 0;
             bool isFinal = false;
@@ -94,76 +102,95 @@ namespace PNGFormat
                 compression[0] = bitArray.Get(counter++);
                 compression[1] = bitArray.Get(counter++);
 
+
+                compression[1] = false;
+                
                 if (!compression[0] && !compression[1])
                 {
-                    // skip any remaining bits in current partially
-                    // processed byte
-                    // read LEN and NLEN (see next section)
-                    // copy LEN bytes of data to output
-                };
+                    byte[] chuckContentCopy = new byte[chunk.Content.Length];
+                    chuckContentCopy = chunk.Content;
 
-                if (compression[0] && !compression[1])
-                {
-                    // read representation of code trees (see
-                    // subsection below)
-                };
-
-                if (compression[0] && compression[1]) return;
-
-                // loop (until end of block code recognized)
-                // while (expression)
-                // {
-                
-                // decode literal/length value from input stream
-                BitArray literalsAndLength = new BitArray(8, false);
-                for (int i = 0; i < 5; i++)
-                {
-                    literalsAndLength[i+3] = bitArray.Get(counter++);
-                }
-                Reverse(literalsAndLength);
-                
-                byte[] literalsAndLengthByte = new byte[1];
-                literalsAndLength.CopyTo(literalsAndLengthByte, 0);
-                if (literalsAndLengthByte[0] < 256)
-                {
-                    // copy value (literal byte) to output stream
+                    int blockLength = Convert.ToInt32(chuckContentCopy[0]);
+                    Pixel item = new Pixel();
+                    for (int i = 0; i < blockLength; i+=3)
+                    {
+                        item.Red = chuckContentCopy[i];
+                        item.Green = chuckContentCopy[i + 1];
+                        item.Blue = chuckContentCopy[i + 2];
+                        
+                        image.Data.Add(item);
+                    }
                 }
                 else
                 {
-                    if (literalsAndLengthByte[0] == 256)
+                    if (compression[0] && !compression[1])
                     {
-                        break;
-                    }
-                    else if (literalsAndLengthByte[0] > 256 && literalsAndLengthByte[0] < 287)
+                        // read representation of code trees (see
+                        // subsection below)
+                    };
+                    
+                    if (!compression[0] && compression[1])
                     {
-                        // decode distance from input stream
-                        BitArray distances = new BitArray(8, false);
+                    
+                    
+                    };
+                    if (compression[0] && compression[1]) return;
+                    
+                    // loop (until end of block code recognized)
+                    // while (expression)
+                    // {
+                    // decode literal/length value from input stream
+                        BitArray literalsAndLength = new BitArray(8, false);
                         for (int i = 0; i < 5; i++)
                         {
-                            distances[i+3] = bitArray.Get(counter++);
+                            literalsAndLength[i+3] = bitArray.Get(counter++);
                         }
-                        Reverse(distances);
-                        
-                        byte[] distancesByte = new byte[1];
-                        distances.CopyTo(distancesByte, 0);
-                        
-                        // move backwards distance bytes in the output
-                        //     stream, and copy length bytes from this
-                        // position to the output stream
-                    }
+                        Reverse(literalsAndLength);
+                    
+                        byte[] literalsAndLengthByte = new byte[1];
+                        literalsAndLength.CopyTo(literalsAndLengthByte, 0);
+                        if (literalsAndLengthByte[0] < 256)
+                        {
+                            // copy value (literal byte) to output stream
+                        }
+                        else
+                        {
+                            if (literalsAndLengthByte[0] == 256)
+                            {
+                                break;
+                            }
+                            if (literalsAndLengthByte[0] > 256 && literalsAndLengthByte[0] < 287)
+                            {
+                                // decode distance from input stream
+                                BitArray distances = new BitArray(8, false);
+                                for (int i = 0; i < 5; i++)
+                                {
+                                    distances[i+3] = bitArray.Get(counter++);
+                                }
+                                Reverse(distances);
+                            
+                                byte[] distancesByte = new byte[1];
+                                distances.CopyTo(distancesByte, 0);
+                            
+                                // move backwards distance bytes in the output
+                                //     stream, and copy length bytes from this
+                                // position to the output stream
+                            }
+                        }
+                    // }
+
                 }
                 
                 
-                // }
+
+                
+                
+                
+                
+                
 
             } while (!isFinal);
-            
-            
-            
-            
-            
-            
-            
+
             BitArray thirdTreeElements = new BitArray(8, false);
             for (int i = 0, j = 3; i < 4; i++, j++ )
             {
