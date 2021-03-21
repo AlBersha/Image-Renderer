@@ -1,14 +1,15 @@
 namespace BMPReader
 {
     using System.IO;
+    using System.Runtime.CompilerServices;
     using ConverterBase;
     using ConverterBase.Writers;
 
-    public class BMPWriter: IBMPWriter
+    public class BMPWriter: IImageWriter
     {
         public bool WriteImage(IImage image, string outputPath)
         {
-            BMPHeader bmpheader = new BMPHeader(image.Width, image.Height);
+            BMPHeader bmpheader = new BMPHeader(image.Data[0].Count, image.Data.Count);
 
             using (BinaryWriter writer = new BinaryWriter(File.Open(outputPath, FileMode.Create)))
             {
@@ -28,12 +29,15 @@ namespace BMPReader
                 writer.Write(bmpheader.biYPelsPerMeter);
                 writer.Write(bmpheader.biClrUsed);
                 writer.Write(bmpheader.biClrImportant);
-    
-                foreach (var item in image.Data)
+
+                foreach (var line in image.Data)
                 {
-                    writer.Write(item.Red);
-                    writer.Write(item.Green);
-                    writer.Write(item.Blue);
+                    foreach (var item in line)
+                    {
+                        writer.Write(item.Red);
+                        writer.Write(item.Green);
+                        writer.Write(item.Blue);
+                    }
                 }
             }
 

@@ -2,89 +2,89 @@
 
 namespace Renderer
 {
-    using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
+    using BMPReader;
     using ConverterBase;
     using ConverterBase.Readers;
     using ConverterBase.Writers;
     using GifFormat;
+    using PNGFormat;
     using PPMFormat;
 
     class Program
     {
         static void Main(string[] args)
         {
-            // var sourceFile = "";
-            // var goalFormat = "";
-            // var outputFile = "";
-            //
-            // foreach (var arg in args)
-            // {
-            //     if (arg.StartsWith("--source="))
-            //     {
-            //         sourceFile = arg.Substring(arg.IndexOf('=') + 1);
-            //     };
-            //     
-            //     if (arg.StartsWith("--goal-format"))
-            //     {
-            //         goalFormat = arg.Substring(arg.IndexOf('=') + 1);
-            //     }
-            //
-            //     if (arg.StartsWith("--output"))
-            //     {
-            //         outputFile = arg.Substring(arg.IndexOf('=') + 1);
-            //     }
-            // }
-            //
-            // if (sourceFile == "")
-            // {
-            //     Console.WriteLine("Argument --source is either entered incorrectly or is missing");
-            // }
-            //
-            // if (goalFormat == "")
-            // {
-            //     Console.WriteLine("Argument --source is either entered incorrectly or is missing");
-            // }
-            //
-            // if (outputFile == "")
-            // {
-            //     outputFile = sourceFile;
-            // }
+            //args = new String[] { "--source=C:\\Users\\Alexandra\\Desktop\\tenor.gif", "--goal-format=ppm", "--output=C:\\Users\\Alexandra\\Desktop\\images\\tenor-result.ppm"};
+            
+            ICommandProcessor commandProcessor = new CommandConsoleProcessor();
+            commandProcessor.ProcessCommand(args);
+            
+            List<string> availableForReading = new List<string>()
+            {
+                "ppm", "bmp", "gif", "png"
+            };
+            
+            List<string> availableForWriting = new List<string>()
+            {
+                "ppm", "bmp"
+            };
+            
+            FormatValidator formatValidator = new FormatValidator(availableForReading, availableForWriting);
+            if (!formatValidator.ValidateSourceFileFormat(commandProcessor.SourceFormat))
+            {
+                Console.Write($"You are trying to open {commandProcessor.SourceFormat} file, but only ");
+                foreach (var format in availableForReading)
+                {
+                    Console.Write('.' + format + " ");
+                }
+                Console.Write("files are supported for reading");
+            }
 
-            IImageReader imageReader = new GifReader();
-            IImageWriter imageWriter = new PPMWriter();
-            //
-            // switch (sourceFile)
-            // {
-            //     case "gif":
-            //     {
-            //         imageReader = new GifReader();
-            //         break;
-            //     }
-            // }
-            //
-            // switch (goalFormat)
-            // {
-            //     // case "gif":
-            //     // {
-            //     //     imageWriter = new GifWriter();
-            //     //     break;
-            //     // }
-            //     // case "png":
-            //     // {
-            //     //     imageWriter = new PngWriter();
-            //     //     break;
-            //     // }
-            //     case "ppm":
-            //     {
-            //         imageWriter = new PPMWriter();
-            //         break;
-            //     }
-            // }
+            if (!formatValidator.ValidateGoalFileFormat(commandProcessor.GoalFormat))
+            {
+                Console.Write($"You are trying to write {commandProcessor.GoalFormat} file, but only ");
+                foreach (var format in availableForWriting)
+                {
+                    Console.Write('.' + format + " ");
+                }
+                Console.Write("files are supported for writing");
+            }
+            
+            
+            IImageReader imageReader = null;
+            IImageWriter imageWriter = null;
+            
+            switch (commandProcessor.SourceFormat)
+            {
+                case "ppm":
+                    imageReader = new PPMReader();
+                    break;
+                case "bmp":
+                    imageReader = new BMPReader();
+                    break;
+                case "gif":
+                    imageReader = new GifReader();
+                    break;
+                case "png":
+                    imageReader = new PNGReader();
+                    break;
+                
+            }
+            
+            switch (commandProcessor.GoalFormat)
+            {
+                case "ppm":
+                    imageWriter = new PPMWriter();
+                    break;
+                case "bmp":
+                    imageWriter = new BMPWriter();
+                    break;
+            }
 
-            string path = "C:\\Users\\mmaks\\Desktop\\sun";
             Converter converter = new Converter(imageReader, imageWriter);
-            converter.Convert(path);
+            converter.Convert(commandProcessor.SourceFile, commandProcessor.OutputFile);
             Console.WriteLine("Image converted");
 
         }

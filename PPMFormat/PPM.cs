@@ -10,7 +10,7 @@ namespace PPMFormat
         public int Width { get; set; }
         public int Height { get; set; }
         public byte BitDepth { get; set; }
-        public List<Pixel> Data { get; set; }
+        public List<List<Pixel>> Data { get; set; }
 
         public PPM()
         {
@@ -19,7 +19,7 @@ namespace PPMFormat
             Width = 0;
             Height = 0;
             BitDepth = 0;
-            Data = new List<Pixel>();
+            Data = new List<List<Pixel>>();
         }
 
     }

@@ -25,7 +25,7 @@ namespace BMPReader
 
         public BMPHeader(int width, int height)
         {
-            int roundWidth = (width * 3) & (-4);
+            int roundWidth = (width * 3) + ((width * 3) % 4);
             bfType = new byte[2];
             bfType[0] = 66;
             bfType[1] = 77;
@@ -50,15 +50,12 @@ namespace BMPReader
     public class BMP: IImage
     {
         public BMPHeader BmpHeader;
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public byte BitDepth { get; set; }
-        public List<Pixel> Data { get; set; }
+        public List<List<Pixel>> Data { get; set; }
 
         public BMP()
         {
             BmpHeader.bfReserved = new short[2];
-            Data = new List<Pixel>();
+            Data = new List<List<Pixel>>();
         }
     }
 }

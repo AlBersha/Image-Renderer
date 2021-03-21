@@ -4,53 +4,56 @@ namespace PPMFormat
     using System.IO;
     using System.Linq;
     using ConverterBase;
+    using ConverterBase.Writers;
 
-    public class PPMWriter: IPPMWriter
+    public class PPMWriter: IImageWriter
     {
         public bool WriteImage(IImage image, string outputPath)
         {
             List<string> fileData = new List<string>();
             fileData.Add("P3");
-            int width = image.Width;
-            int height = image.Height;
+            int width = image.Data[0].Count;
+            int height = image.Data.Count;
             int colorRange = FindColorRange(image.Data);
             
             fileData.Add(width.ToString() + ' ' + height.ToString());
             fileData.Add(colorRange.ToString());
 
-            int counter = 0;
-            for (int i = 0; i < image.Width; i++)
+            for (int i = 0; i < height; i++)
             {
                 string row = "";
-                for (int j = 0; j < image.Height; j++)
+                for (int j = 0; j < width; j++)
                 {
-                    row += image.Data[counter].Red + " " + image.Data[counter].Green + " " + image.Data[counter++].Blue + "   ";
+                    row += image.Data[i][j].Red + " " + image.Data[i][j].Green + " " + image.Data[i][j].Blue + "   ";
                 }
                 fileData.Add(row);
             }
 
-            File.WriteAllLines(outputPath + ".ppm", fileData);
-            return outputPath;
+            File.WriteAllLines(outputPath, fileData);
+            return true;
         }
 
-        private int FindColorRange(List<Pixel> array)
+        private int FindColorRange(List<List<Pixel>> array)
         {
             int max = 0;
-            foreach (var pixel in array)
+            foreach (var line in array)
             {
-                if (pixel.Red > max)
+                foreach (var pixel in line)
                 {
-                    max = pixel.Red;
-                }
+                    if (pixel.Red > max)
+                    {
+                        max = pixel.Red;
+                    }
 
-                if (pixel.Blue > max)
-                {
-                    max = pixel.Blue;
-                }
+                    if (pixel.Blue > max)
+                    {
+                        max = pixel.Blue;
+                    }
 
-                if (pixel.Green > max)
-                {
-                    max = pixel.Green;
+                    if (pixel.Green > max)
+                    {
+                        max = pixel.Green;
+                    }
                 }
             }
             

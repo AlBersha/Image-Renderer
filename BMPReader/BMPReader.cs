@@ -4,8 +4,9 @@ namespace BMPReader
     using System.Collections.Generic;
     using System.IO;
     using ConverterBase;
+    using ConverterBase.Readers;
 
-    public class BMPReader: IBMPRReader
+    public class BMPReader: IImageReader
     {
         public IImage ReadImage(string path)
         {
@@ -32,14 +33,12 @@ namespace BMPReader
                     image.BmpHeader.biYPelsPerMeter = reader.ReadInt32();
                     image.BmpHeader.biClrUsed = reader.ReadInt32();
                     image.BmpHeader.biClrImportant = reader.ReadInt32();
-
-                    image.Width = image.BmpHeader.biWidth;
-                    image.Height = image.BmpHeader.biHeight;
-
+                    
                     if (image.BmpHeader.biWidth > 0 && image.BmpHeader.biHeight > 0)
                     {
                         for (int i = 0; i < image.BmpHeader.biWidth; i++)
                         {
+                            List<Pixel> row = new List<Pixel>();
                             for (int j = 0; j < image.BmpHeader.biHeight; j++)
                             {
                                 Pixel item = new Pixel();
@@ -48,8 +47,9 @@ namespace BMPReader
                                 item.Green = reader.ReadByte();
                                 item.Blue = reader.ReadByte();
 
-                                image.Data.Add(item);
+                               row.Add(item);
                             }
+                            image.Data.Add(row);
                         }
                     }
                     else

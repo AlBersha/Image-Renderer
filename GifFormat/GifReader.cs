@@ -4,8 +4,9 @@ namespace GifFormat
     using System.Collections.Generic;
     using System.IO;
     using ConverterBase;
+    using ConverterBase.Readers;
 
-    public class GifReader : IGifReader
+    public class GifReader : IImageReader
     {
         private GIF GIF { get; set; }
 
@@ -14,9 +15,9 @@ namespace GifFormat
             GIF = new GIF();
         }
 
-        public IImage Read(string path)
+        public IImage ReadImage(string path)
         {
-            using (var stream = File.OpenRead(path + ".gif"))
+            using (var stream = File.OpenRead(path))
             {
                 using (var br = new BinaryReader(stream))
                 {
@@ -100,7 +101,7 @@ namespace GifFormat
                 //Read Global Color Table
                 for (var i = 0; i < numberOfColorsInGlobalTable; i++)
                 {
-                    GIF.ColorTable.Add(new RGB
+                    GIF.ColorTable.Add(new Pixel
                     {
                         Red = br.ReadByte(),
                         Green = br.ReadByte(),
@@ -125,7 +126,7 @@ namespace GifFormat
                 //Read Local Color Table
                 for (var i = 0; i < numberOfColorsInLocalTable; i++)
                 {
-                    GIF.ColorTable.Add(new RGB
+                    GIF.ColorTable.Add(new Pixel
                     {
                         Red = br.ReadByte(),
                         Green = br.ReadByte(),
@@ -235,7 +236,7 @@ namespace GifFormat
         {
             for (var i = 0; i < GIF.ImageDescriptor.Height; i++)
             {
-                var pixels = new List<RGB>();
+                var pixels = new List<Pixel>();
 
                 for (var j = 0; j < GIF.ImageDescriptor.Width; j++)
                 {
@@ -248,10 +249,10 @@ namespace GifFormat
             var interlace = (GIF.ImageDescriptor.Packed >> 6) & 1;
             if (interlace == 1)
             {
-                List<List<RGB>> nonInterlacedImage = new List<List<RGB>>();
+                List<List<Pixel>> nonInterlacedImage = new List<List<Pixel>>();
                 for (var i = 0; i < GIF.ImageDescriptor.Height;i++)
                 {
-                    nonInterlacedImage.Add(new List<RGB>());
+                    nonInterlacedImage.Add(new List<Pixel>());
                 }
                 
                 var j = 0;

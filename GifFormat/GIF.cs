@@ -8,15 +8,15 @@ namespace GifFormat
         {
             public GifHeader Header { get; set; }
             public GifImageDescriptor ImageDescriptor { get; set; }
-            public List<RGB> ColorTable { get; set; }
-            public List<List<RGB>> Data { get; set; }
+            public List<Pixel> ColorTable { get; set; }
+            public List<List<Pixel>> Data { get; set; }
 
             public GIF()
             {
                 Header = new GifHeader();
                 ImageDescriptor = new GifImageDescriptor();
-                ColorTable = new List<RGB>();
-                Data = new List<List<RGB>>();
+                ColorTable = new List<Pixel>();
+                Data = new List<List<Pixel>>();
             }
         }
     

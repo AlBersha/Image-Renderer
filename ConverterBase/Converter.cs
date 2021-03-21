@@ -17,12 +17,12 @@ namespace ConverterBase
             ImageWriter = imageWriter;
         }
         
-        public string Convert(string path)
+        public bool Convert(string sourcePath, string outputPath)
         {
-            var imageData = ImageReader.Read(path);
-            ImageWriter.Write(imageData,path);
+            var imageData = ImageReader.ReadImage(sourcePath);
+            ImageWriter.WriteImage(imageData,outputPath);
 
-            return path;
+            return true;
             
         }
     }
