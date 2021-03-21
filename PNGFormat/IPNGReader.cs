@@ -1,6 +1,8 @@
 namespace PNGFormat
 {
-    public interface IPNGReader
+    using ConverterBase.Readers;
+
+    public interface IPNGReader : IImageReader
     {
         
     }

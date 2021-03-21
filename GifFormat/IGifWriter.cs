@@ -1,6 +1,8 @@
 namespace GifFormat
 {
-    public interface IGifWriter
+    using ConverterBase.Writers;
+
+    public interface IGifWriter : IImageWriter
     {
         
     }

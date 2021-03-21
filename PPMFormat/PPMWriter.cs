@@ -7,7 +7,7 @@ namespace PPMFormat
 
     public class PPMWriter: IPPMWriter
     {
-        public bool Write(IImage image, string outputPath)
+        public string Write(IImage image, string outputPath)
         {
             List<string> fileData = new List<string>();
             fileData.Add("P3");
@@ -28,8 +28,8 @@ namespace PPMFormat
                 fileData.Add(row);
             }
 
-            File.WriteAllLines(outputPath, fileData);
-            return true;
+            File.WriteAllLines(outputPath + ".ppm", fileData);
+            return outputPath;
         }
 
         private int FindColorRange(List<List<RGB>> array)
