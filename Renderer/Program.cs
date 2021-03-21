@@ -3,7 +3,6 @@
 namespace Renderer
 {
     using System.Collections.Generic;
-    using System.IO;
     using BMPReader;
     using ConverterBase;
     using ConverterBase.Readers;
@@ -16,8 +15,6 @@ namespace Renderer
     {
         static void Main(string[] args)
         {
-            //args = new String[] { "--source=C:\\Users\\Alexandra\\Desktop\\tenor.gif", "--goal-format=ppm", "--output=C:\\Users\\Alexandra\\Desktop\\images\\tenor-result.ppm"};
-            
             ICommandProcessor commandProcessor = new CommandConsoleProcessor();
             commandProcessor.ProcessCommand(args);
             

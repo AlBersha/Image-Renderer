@@ -17,63 +17,70 @@ namespace GifFormat
 
         public IImage ReadImage(string path)
         {
-            using (var stream = File.OpenRead(path))
+            try
             {
-                using (var br = new BinaryReader(stream))
+                using (var stream = File.OpenRead(path))
                 {
-                    ReadHeader(br);
-                    ReadGlobalColorTable(br);
-
-                    var flag = true;
-                    while (flag)
+                    using (var br = new BinaryReader(stream))
                     {
-                        var code = br.ReadByte();
-                        switch (code)
-                        {
-                            case 0x2C:
-                            {
-                                ReadImageDescriptor(br);
-                                ReadLocalColorTable(br);
-                                ReadImageData(br);
-                                //readImage
-                                flag = false;
-                                break;
-                            }
-                            case 0x21:
-                            {
-                                var extensionBlock = br.ReadByte();
-                                switch (extensionBlock)
-                                {
-                                    case 0xF9:
-                                    {
-                                        ReadGraphicControlExtensionBlock(br);
-                                        break;
-                                    }
-                                    case 0x01:
-                                    {
-                                        ReadPlainTextExtensionBlock(br);
-                                        break;
-                                    }
-                                    case 0xFF:
-                                    {
-                                        ReadApplicationExtensionBlock(br);
-                                        break;
-                                    }
-                                    case 0xFE:
-                                    {
-                                        ReadCommentExtensionBlock(br);
-                                        break;
-                                    }
-                                }
+                        ReadHeader(br);
+                        ReadGlobalColorTable(br);
 
-                                break;
+                        var flag = true;
+                        while (flag)
+                        {
+                            var code = br.ReadByte();
+                            switch (code)
+                            {
+                                case 0x2C:
+                                {
+                                    ReadImageDescriptor(br);
+                                    ReadLocalColorTable(br);
+                                    ReadImageData(br);
+                                    flag = false;
+                                    break;
+                                }
+                                case 0x21:
+                                {
+                                    var extensionBlock = br.ReadByte();
+                                    switch (extensionBlock)
+                                    {
+                                        case 0xF9:
+                                        {
+                                            ReadGraphicControlExtensionBlock(br);
+                                            break;
+                                        }
+                                        case 0x01:
+                                        {
+                                            ReadPlainTextExtensionBlock(br);
+                                            break;
+                                        }
+                                        case 0xFF:
+                                        {
+                                            ReadApplicationExtensionBlock(br);
+                                            break;
+                                        }
+                                        case 0xFE:
+                                        {
+                                            ReadCommentExtensionBlock(br);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                return GIF;
+                    return GIF;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Something went wrong during .gif file reading. We will handle such kind of exception in the next release");
+                throw;
+            }
+            
         }
 
         private void ReadHeader(BinaryReader br)
