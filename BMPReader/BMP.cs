@@ -22,6 +22,29 @@ namespace BMPReader
         public Int32 biYPelsPerMeter; 
         public Int32 biClrUsed;       
         public Int32 biClrImportant;
+
+        public BMPHeader(int width, int height)
+        {
+            int roundWidth = (width * 3) & (-4);
+            bfType = new byte[2];
+            bfType[0] = 66;
+            bfType[1] = 77;
+            bfSize = 56 + roundWidth * height;
+            bfReserved = new short[2];
+            biPlanes = 1;
+            biSize = 40;
+            bfHeadersize = 56;
+            biWidth = width;
+            biHeight = height;
+            biBitCount = 24;
+            biCompression = 0;
+            
+            biSizeImage = default;
+            biXPelsPerMeter = default; 
+            biYPelsPerMeter = default; 
+            biClrUsed = 0;       
+            biClrImportant = 0;
+        }
     }
     
     public class BMP: IImage

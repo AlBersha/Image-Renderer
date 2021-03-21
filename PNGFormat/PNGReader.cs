@@ -347,7 +347,7 @@ namespace PNGFormat
                             throw new InvalidOperationException($"CRC calculated {result} did not match file {crcActual} for chunk: {header.Name}.");
                         }
 
-                        settings?.ChunkVisitor?.Visit(stream, imageHeader, header, bytes, crc);
+                        // settings?.ChunkVisitor?.Visit(stream, imageHeader, header, bytes, crc);
                     }
 
                     memoryStream.Flush();
@@ -366,7 +366,19 @@ namespace PNGFormat
 
                 bytesOut = Decoder.Decode(bytesOut, imageHeader, bytesPerPixel, samplesPerPixel);
 
-                return new PNG(imageHeader, new RawPngData(bytesOut, bytesPerPixel, palette, imageHeader));
+                image = new PNG(imageHeader, new RawPngData(bytesOut, bytesPerPixel, palette, imageHeader));
+                image.Width = imageHeader.Width;
+                image.Height = imageHeader.Height;
+                
+                for (int i = 0; i < imageHeader.Width; i++)
+                {
+                    for (int j = 0; j < imageHeader.Height; j++)
+                    {
+                        image.Data.Add(image.GetPixel(i, j));
+                    }
+                }
+
+                return image;
             }
         }
         private static HeaderValidation HasValidHeader(Stream stream)

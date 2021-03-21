@@ -101,7 +101,7 @@ namespace PNGFormat
                 case 8:
                     return new Pixel(first, data[pixelStartIndex + 2], data[pixelStartIndex + 4], data[pixelStartIndex + 6], false);
                 default:
-                    throw new InvalidOperationException($"Unreconised number of bytes per pixel: {bytesPerPixel}.");
+                    throw new InvalidOperationException($"Unrecognised number of bytes per pixel: {bytesPerPixel}.");
             }
         }
         

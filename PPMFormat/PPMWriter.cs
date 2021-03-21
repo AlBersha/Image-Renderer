@@ -18,20 +18,17 @@ namespace PPMFormat
             fileData.Add(width.ToString() + ' ' + height.ToString());
             fileData.Add(colorRange.ToString());
 
-            foreach (var symbol in image.Data)
+            int counter = 0;
+            for (int i = 0; i < image.Width; i++)
             {
                 string row = "";
-                
-                row += symbol.Red + " " + symbol.Green + " " + symbol.Blue + "   ";
-                
-                // foreach (var symbol in line)
-                // {
-                //     row += symbol.Red + " " + symbol.Green + " " + symbol.Blue + "   ";
-                // }
-                
+                for (int j = 0; j < image.Height; j++)
+                {
+                    row += image.Data[counter].Red + " " + image.Data[counter].Green + " " + image.Data[counter++].Blue + "   ";
+                }
                 fileData.Add(row);
             }
-
+            
             File.WriteAllLines(outputPath, fileData);
             return true;
         }
@@ -41,23 +38,20 @@ namespace PPMFormat
             int max = 0;
             foreach (var pixel in array)
             {
-                // foreach (var pixel in line)
-                // {
-                    if (pixel.Red > max)
-                    {
-                        max = pixel.Red;
-                    }
+                if (pixel.Red > max)
+                {
+                    max = pixel.Red;
+                }
 
-                    if (pixel.Blue > max)
-                    {
-                        max = pixel.Blue;
-                    }
+                if (pixel.Blue > max)
+                {
+                    max = pixel.Blue;
+                }
 
-                    if (pixel.Green > max)
-                    {
-                        max = pixel.Green;
-                    }
-                // }
+                if (pixel.Green > max)
+                {
+                    max = pixel.Green;
+                }
             }
             
             return max;

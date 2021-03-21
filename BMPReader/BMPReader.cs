@@ -33,11 +33,13 @@ namespace BMPReader
                     image.BmpHeader.biClrUsed = reader.ReadInt32();
                     image.BmpHeader.biClrImportant = reader.ReadInt32();
 
+                    image.Width = image.BmpHeader.biWidth;
+                    image.Height = image.BmpHeader.biHeight;
+
                     if (image.BmpHeader.biWidth > 0 && image.BmpHeader.biHeight > 0)
                     {
                         for (int i = 0; i < image.BmpHeader.biWidth; i++)
                         {
-                            List<Pixel> line = new List<Pixel>();
                             for (int j = 0; j < image.BmpHeader.biHeight; j++)
                             {
                                 Pixel item = new Pixel();
@@ -48,7 +50,6 @@ namespace BMPReader
 
                                 image.Data.Add(item);
                             }
-                        
                         }
                     }
                     else
