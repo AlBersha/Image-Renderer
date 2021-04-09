@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPMFormat", "PPMFormat\PPMF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BMPReader", "BMPReader\BMPReader.csproj", "{7919CD34-9B16-44AD-8444-FB40C37EB2DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raytracer", "Raytracer\Raytracer.csproj", "{1769ADB2-B567-4E30-B497-B402360B885C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{7919CD34-9B16-44AD-8444-FB40C37EB2DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7919CD34-9B16-44AD-8444-FB40C37EB2DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7919CD34-9B16-44AD-8444-FB40C37EB2DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1769ADB2-B567-4E30-B497-B402360B885C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1769ADB2-B567-4E30-B497-B402360B885C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1769ADB2-B567-4E30-B497-B402360B885C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1769ADB2-B567-4E30-B497-B402360B885C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
