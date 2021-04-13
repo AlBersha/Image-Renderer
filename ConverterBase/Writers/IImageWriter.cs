@@ -1,7 +1,9 @@
 namespace ConverterBase.Writers
 {
+    using System.Collections.Generic;
+
     public interface IImageWriter
     {
-        public string Write(IImage image, string path);
+        public bool WriteImage(IImage image, string outputPath);
     }
 }

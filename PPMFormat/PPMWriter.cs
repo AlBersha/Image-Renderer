@@ -4,10 +4,11 @@ namespace PPMFormat
     using System.IO;
     using System.Linq;
     using ConverterBase;
+    using ConverterBase.Writers;
 
-    public class PPMWriter: IPPMWriter
+    public class PPMWriter: IImageWriter
     {
-        public string Write(IImage image, string outputPath)
+        public bool WriteImage(IImage image, string outputPath)
         {
             List<string> fileData = new List<string>();
             fileData.Add("P3");
@@ -18,21 +19,21 @@ namespace PPMFormat
             fileData.Add(width.ToString() + ' ' + height.ToString());
             fileData.Add(colorRange.ToString());
 
-            foreach (var line in image.Data)
+            for (int i = 0; i < height; i++)
             {
                 string row = "";
-                foreach (var symbol in line)
+                for (int j = 0; j < width; j++)
                 {
-                    row += symbol.Red + " " + symbol.Green + " " + symbol.Blue + "   ";
+                    row += image.Data[i][j].Red + " " + image.Data[i][j].Green + " " + image.Data[i][j].Blue + "   ";
                 }
                 fileData.Add(row);
             }
 
-            File.WriteAllLines(outputPath + ".ppm", fileData);
-            return outputPath;
+            File.WriteAllLines(outputPath, fileData);
+            return true;
         }
 
-        private int FindColorRange(List<List<RGB>> array)
+        private int FindColorRange(List<List<Pixel>> array)
         {
             int max = 0;
             foreach (var line in array)

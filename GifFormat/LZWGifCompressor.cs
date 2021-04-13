@@ -16,17 +16,6 @@ namespace GifFormat
             ImageData = "";
         }
 
-        // private void InitializeCodeTable(List<RGB> initialCodeTable)
-        // {
-        //     CodeTable.Clear();
-        //     for (var i = 0; i < initialCodeTable.Count; i++)
-        //     {
-        //         CodeTable.Add(i, initialCodeTable[i].ToString());
-        //     }
-        //
-        //     CodeTable[initialCodeTable.Count] = "CC";
-        //     CodeTable[initialCodeTable.Count + 1] = "EOI";
-        // }
         private void InitializeCodeTable(int codeTableSize)
         {
             CodeTable.Clear();
@@ -38,22 +27,7 @@ namespace GifFormat
             CodeTable[codeTableSize] = new List<int>(){codeTableSize};
             CodeTable[codeTableSize + 1] = new List<int>(){codeTableSize + 1};
         }
-
-        private void ConvertBytesToString(byte[] data)
-        {
-            foreach (var t in data)
-            {
-                //Console.Write(Convert.ToString(subBlockImageData[i],2).PadLeft(8,'0'));
-                //Console.Write(" ");
-                ImageData += Reverse(Convert.ToString(t, 2)
-                    .PadLeft(8, '0'));
-            }
-        }
         
-        public void Compress()
-        {
-        }
-
         public List<int> Decompress(string imageData, int startCodeLength, int colorTableSize)
         {
             var clearCode = colorTableSize;

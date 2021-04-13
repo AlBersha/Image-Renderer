@@ -5,10 +5,11 @@ namespace PPMFormat
     using System.IO;
     using System.Linq;
     using ConverterBase;
+    using ConverterBase.Readers;
 
-    public class PPMReader: IPPMReader
+    public class PPMReader: IImageReader
     {
-        public IImage ReadPPM(string path)
+        public IImage ReadImage(string path)
         {
             string[] lines = File.ReadAllLines(path);
             PPM ppmFileData = new PPM();
@@ -40,38 +41,41 @@ namespace PPMFormat
 
                     if (words.Count > 2)
                     {
-                        ppmFileData.ColorRange = int.Parse(words[2]);
+                        ppmFileData.BitDepth = byte.Parse(words[2]);
                     }
                     
                     continue;
                 }
 
-                if (isNumber && ppmFileData.ColorRange == 0) 
+                if (isNumber && ppmFileData.BitDepth == 0) 
                 {
-                    ppmFileData.ColorRange = int.Parse(words[0]);
+                    ppmFileData.BitDepth = byte.Parse(words[0]);
                     
                     continue;
                 }
 
                 if (isNumber)
                 {
-                    List<RGB> pixels = new List<RGB>();
-                    for (int i = 0; i < ppmFileData.Width; i++)
+                    for (int i = 0; i < ppmFileData.Height; i++)
                     {
-                        RGB item = new RGB();
-                        var tmp = byte.TryParse(words[0], out item.Red);
-                        words.RemoveAt(0);
+                        List<Pixel> row = new List<Pixel>();
+                        for (int j = 0; j < ppmFileData.Width; j++)
+                        {
+                            Pixel item = new Pixel();
+                            var tmp = byte.TryParse(words[0], out item.Red);
+                            words.RemoveAt(0);
                         
-                        tmp = byte.TryParse(words[0], out item.Green);
-                        words.RemoveAt(0);
+                            tmp = byte.TryParse(words[0], out item.Green);
+                            words.RemoveAt(0);
                         
-                        tmp = byte.TryParse(words[0], out item.Blue);
-                        words.RemoveAt(0);
+                            tmp = byte.TryParse(words[0], out item.Blue);
+                            words.RemoveAt(0);
+                            
+                            row.Add(item);
+                        }
+                        ppmFileData.Data.Add(row);
 
-                        pixels.Add(item);
                     }
-
-                    ppmFileData.Data.Add(pixels);
                 }
             }
 

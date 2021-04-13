@@ -4,6 +4,6 @@ namespace ConverterBase
 
     public interface IImage
     {
-        public List<List<RGB>> Data { get; set; }
+        public List<List<Pixel>> Data { get; set; }
     }
 }
