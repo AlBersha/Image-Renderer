@@ -10,6 +10,7 @@
       <ProjectReference Include="..\GifFormat\GifFormat.csproj" />
       <ProjectReference Include="..\PNGFormat\PNGFormat.csproj" />
       <ProjectReference Include="..\PPMFormat\PPMFormat.csproj" />
+      <ProjectReference Include="..\Raytracer\Raytracer.csproj" />
     </ItemGroup>
 
 </Project>
