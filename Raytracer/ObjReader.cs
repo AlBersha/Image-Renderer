@@ -1,19 +1,19 @@
 ﻿using System.IO;
-using OBJ3DWavefrontLoader;
+using ObjLoader.Loader.Loaders;
 
 namespace Raytracer
 {
     public static class ObjReader
     {
-        public static SimpleMesh ReadObjFile(string path)
+        public static LoadResult ReadObjFile(string path)
         {
-            SimpleMesh simpleMesh;
-            using (var reader = new StreamReader(path))
-            {
-                simpleMesh = SimpleMesh.LoadFromObj(reader);
-            }
-
-            return simpleMesh;
+            var objLoaderFactory = new ObjLoaderFactory();
+            var objLoader = objLoaderFactory.Create();
+            
+            var fileStream = File.OpenRead(path);
+            var result = objLoader.Load(fileStream);
+            
+            return result;
         }
     }
 }

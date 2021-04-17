@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using ConverterBase.GeomHelper;
+using ObjLoader.Loader.Data.VertexData;
 using Raytracer;
+using ObjLoader.Loader.Loaders;
 
 namespace Renderer
 {
@@ -87,49 +90,75 @@ namespace Renderer
             // converter.Convert(commandProcessor.SourceFile, commandProcessor.OutputFile);
             // Console.WriteLine("Image converted");
 
-            int width = 30;
-            int height = 30;
+            var width = 500;
+            var height = 500;
             
-            Point3[,] matrix = new Point3[width, height];
-            matrix = Tracer.Trace();
+            var path = "C:\\Users\\mmaks\\Desktop\\cow.obj";
+            string outputPath = "C:\\Users\\mmaks\\Desktop\\500x500.ppm";
+            
+            var object3D = ObjReader.ReadObjFile(path);
+            
+            var scaleM = new Matrix4x4 
+            (
+                2f, 0, 0, 0,
+                0, 2f, 0, 0,
+                0, 0, 2f, 0,
+                0, 0, 0, 1
+            );
+            
+            var rotationX = new Matrix4x4 
+            (
+                1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, -1, 0, 0,
+                0, 0, 0, 1
+            );
+            
+            var rotationY = new Matrix4x4 
+            (
+                -1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, -1, 0,
+                0, 0, 0, 1
+            );
 
-            // for (int i = 0; i < width; i++)
-            // {
-            //     for (int j = 0; j < height; j++)
-            //     {
-            //         if (matrix[i, j])
-            //         {
-            //             Console.Write("*");
-            //         }
-            //         else
-            //         {
-            //             Console.Write(".");
-            //         }
-            //     }
-            //     Console.WriteLine();
-            // }
+            var transformM = rotationY * rotationX * scaleM;
 
-            string outputPath = "C:\\Users\\obers\\Downloads\\result.ppm";
-            
-            List<string> fileData = new List<string>();
-            fileData.Add("P3");
-            
-            fileData.Add(width.ToString() + ' ' + height.ToString());
-            fileData.Add("255");
-            
-            for (int i = 0; i < height; i++)
+            for (var i = 0; i < object3D.Vertices.Count; i++)
             {
-                string row = "";
-                for (int j = 0; j < width; j++)
-                {
-                    row += matrix[i,j].X + " " + matrix[i,j].Y + " " + matrix[i,j].Z + "   ";
-                }
-                fileData.Add(row);
+                var v3 = new Vector3(object3D.Vertices[i].X, object3D.Vertices[i].Y, object3D.Vertices[i].Z);
+
+                var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
+                var res = transformM.MultiplyBy(v4);
+
+                object3D.Vertices[i] = new Vertex(res.X, res.Y, res.Z);
             }
             
-            File.WriteAllLines(outputPath, fileData);
-            
+            var pixelMatrix = Tracer.Trace(width,height, object3D);
 
+            IImage image = new PPM(width, height, pixelMatrix);
+            var ppmWriter = new PPMWriter();
+            ppmWriter.WriteImage(image, outputPath);
+
+
+
+            // List<string> fileData = new List<string>();
+            // fileData.Add("P3");
+            //
+            // fileData.Add(width.ToString() + ' ' + height.ToString());
+            // fileData.Add("255");
+            //
+            // for (int i = 0; i < height; i++)
+            // {
+            //     string row = "";
+            //     for (int j = 0; j < width; j++)
+            //     {
+            //         row += matrix[i,j].X + " " + matrix[i,j].Y + " " + matrix[i,j].Z + "   ";
+            //     }
+            //     fileData.Add(row);
+            // }
+            //
+            // File.WriteAllLines(outputPath, fileData);
         }
     }
 }

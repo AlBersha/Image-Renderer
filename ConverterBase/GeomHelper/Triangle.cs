@@ -9,12 +9,17 @@ namespace ConverterBase.GeomHelper
         public Vector3 C;
         public Vector3 Center;
 
-    public Triangle(Vector3 a, Vector3 b, Vector3 c)
+        public Triangle(Vector3 a, Vector3 b, Vector3 c)
         {
             A = a;
             B = b;
             C = c;
             Center = new Vector3((A.X + B.X + C.X) / 3, (A.Y + B.Y + C.Y) / 3, (A.Z + B.Z + C.Z) / 3);
+        }
+
+        public Vector3 GetNormal()
+        {
+            return Vector3.Normalize(Vector3.Cross(B - A, C - A));
         }
     }
 }

@@ -13,4 +13,8 @@
       <ProjectReference Include="..\Raytracer\Raytracer.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CjClutter.ObjLoader" Version="1.0.0" />
+    </ItemGroup>
+
 </Project>

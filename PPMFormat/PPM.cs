@@ -21,6 +21,13 @@ namespace PPMFormat
             BitDepth = 0;
             Data = new List<List<Pixel>>();
         }
+        
+        public PPM(int width, int height, List<List<Pixel>> pixels)
+        {
+            Width = width;
+            Height = height;
+            Data = pixels;
+        }
 
     }
 }
