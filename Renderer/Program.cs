@@ -90,14 +90,20 @@ namespace Renderer
             // converter.Convert(commandProcessor.SourceFile, commandProcessor.OutputFile);
             // Console.WriteLine("Image converted");
 
-            var width = 500;
-            var height = 500;
+            var width = 1500;
+            var height = 1500;
             
             var path = "C:\\Users\\mmaks\\Desktop\\cow.obj";
-            string outputPath = "C:\\Users\\mmaks\\Desktop\\500x500.ppm";
+            string outputPath = "C:\\Users\\mmaks\\Desktop\\100x100.ppm";
             
             var object3D = ObjReader.ReadObjFile(path);
-            
+            var translationM = new Matrix4x4 
+            (
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            );
             var scaleM = new Matrix4x4 
             (
                 2f, 0, 0, 0,
@@ -105,7 +111,6 @@ namespace Renderer
                 0, 0, 2f, 0,
                 0, 0, 0, 1
             );
-            
             var rotationX = new Matrix4x4 
             (
                 1, 0, 0, 0,
@@ -113,7 +118,6 @@ namespace Renderer
                 0, -1, 0, 0,
                 0, 0, 0, 1
             );
-            
             var rotationY = new Matrix4x4 
             (
                 -1, 0, 0, 0,
@@ -121,44 +125,43 @@ namespace Renderer
                 0, 0, -1, 0,
                 0, 0, 0, 1
             );
-
-            var transformM = rotationY * rotationX * scaleM;
-
+            
+            var transformM = rotationY * rotationX * scaleM * translationM;
+            
+            var xMin = float.MaxValue;
+            var yMin = float.MaxValue;
+            var zMin = float.MaxValue;
+            var xMax = float.MinValue;
+            var yMax = float.MinValue;
+            var zMax = float.MinValue;
+            
             for (var i = 0; i < object3D.Vertices.Count; i++)
             {
                 var v3 = new Vector3(object3D.Vertices[i].X, object3D.Vertices[i].Y, object3D.Vertices[i].Z);
-
+            
                 var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
                 var res = transformM.MultiplyBy(v4);
-
+            
                 object3D.Vertices[i] = new Vertex(res.X, res.Y, res.Z);
+            
+                xMin = Math.Min(xMin, object3D.Vertices[i].X);
+                yMin = Math.Min(yMin, object3D.Vertices[i].Y);
+                zMin = Math.Min(zMin, object3D.Vertices[i].Z);
+                xMax = Math.Max(xMax, object3D.Vertices[i].X);
+                yMax = Math.Max(yMax, object3D.Vertices[i].Y);
+                zMax = Math.Max(zMax, object3D.Vertices[i].Z);
             }
             
-            var pixelMatrix = Tracer.Trace(width,height, object3D);
-
+            var min = new Vector3(xMin, yMin, zMin);
+            var max = new Vector3(xMax, yMax, zMax);
+            
+            var pixelMatrix = Tracer.Trace(width,height, object3D, min,max);
+            
             IImage image = new PPM(width, height, pixelMatrix);
             var ppmWriter = new PPMWriter();
             ppmWriter.WriteImage(image, outputPath);
 
-
-
-            // List<string> fileData = new List<string>();
-            // fileData.Add("P3");
-            //
-            // fileData.Add(width.ToString() + ' ' + height.ToString());
-            // fileData.Add("255");
-            //
-            // for (int i = 0; i < height; i++)
-            // {
-            //     string row = "";
-            //     for (int j = 0; j < width; j++)
-            //     {
-            //         row += matrix[i,j].X + " " + matrix[i,j].Y + " " + matrix[i,j].Z + "   ";
-            //     }
-            //     fileData.Add(row);
-            // }
-            //
-            // File.WriteAllLines(outputPath, fileData);
+            //----------
         }
     }
 }

@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using ConverterBase;
 using ConverterBase.GeomHelper;
+using Microsoft.VisualBasic;
 using ObjLoader.Loader.Data.Elements;
+using ObjLoader.Loader.Data.VertexData;
 using ObjLoader.Loader.Loaders;
+using Priority_Queue;
 
-// using OBJ3DWavefrontLoader;
 
 namespace Raytracer
 {
@@ -18,15 +22,19 @@ namespace Raytracer
         public static int Fov = 80;
         public static Vector3 Camera => new Vector3(0, 0, 2);
         public static float ScreenZ => 1f;
-        public static Vector3 LightPos => new Vector3(0, 4, 2);
+        public static Vector3 LightPos => new Vector3(0, 0, 2);
         
         public static float ImageAspectRatio;
         
-        public static List<List<Pixel>> Trace(int width, int height, LoadResult object3D)
+        public static List<List<Pixel>> Trace(int width, int height, LoadResult object3D, Vector3 min, Vector3 max)
         {
+            var wath = System.Diagnostics.Stopwatch.StartNew();
             ImageWidth = width;
             ImageHeight = height;    
             ImageAspectRatio = ImageWidth / ImageHeight;
+            var g = 0;
+            var num = 0; 
+            var octree = new Octree(min, max, object3D.Groups[0].Faces, object3D.Vertices);
 
             var image = new List<List<Pixel>>();
             for (var i = 0; i < ImageHeight; i++)
@@ -39,60 +47,94 @@ namespace Raytracer
                     
                     var pixelCenterPoint = new Vector3(x, y, ScreenZ);
                     var rayDirection = pixelCenterPoint - Camera;
-                    Vector3.Normalize(rayDirection);
-                    
-                    var minDistance = float.MaxValue;
-                    Triangle nearestTriangle = null;
-                    var intersectionPoint = new Vector3();
-
-                    // Triangle triangle = new Triangle(new Vector3(0, 0, -3), new Vector3(-2, 1, -3), new Vector3(1, 1, -3));
-                    foreach (var face in object3D.Groups[0].Faces)
+                    rayDirection = Vector3.Normalize(rayDirection);
+                  
+                    float t = 0;
+                    var priorityQueue = new SimplePriorityQueue<OctreeNode, float>();
+                    if (Extension.IsRayIntersectBox(octree.Root.pMin, octree.Root.pMax, Camera, rayDirection, ref t))
                     {
-                        var X = object3D.Vertices[face[0].VertexIndex - 1].X;
-                        var Y = object3D.Vertices[face[0].VertexIndex - 1].Y;
-                        var Z = object3D.Vertices[face[0].VertexIndex - 1].Z;
-                        var A = new Vector3(X,Y,Z);
-                        
-                        X = object3D.Vertices[face[1].VertexIndex - 1].X;
-                        Y = object3D.Vertices[face[1].VertexIndex - 1].Y;
-                        Z = object3D.Vertices[face[1].VertexIndex - 1].Z;
-                        var B = new Vector3(X,Y,Z);
-                        
-                        X = object3D.Vertices[face[2].VertexIndex - 1].X;
-                        Y = object3D.Vertices[face[2].VertexIndex - 1].Y;
-                        Z = object3D.Vertices[face[2].VertexIndex - 1].Z;
-                        var C = new Vector3(X,Y,Z);
-                        
-                        var triangle = new Triangle(A, B, C);
+                        priorityQueue.Enqueue(octree.Root,t);
+                    }
 
-                        if (IsIntersectTriangle(Camera, rayDirection, triangle, ref intersectionPoint))
+                    Triangle nearestTriangle = null;
+                    var nearestTriangleIntersectionPoint = new Vector3();
+                    var minDistance = float.MaxValue;
+                    while (priorityQueue.Count != 0)
+                    {
+                        var flag = false;
+                        var node = priorityQueue.Dequeue();
+                        var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+                        var intersectedTriangle =
+                            FindIntersectionInBox(node.Faces, object3D.Vertices, rayDirection, ref num, ref intersectionPoint);
+                        var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, Camera);
+                        if (distanceBetweenCameraAndTriangle < minDistance)
                         {
-                            var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, Camera);
-
-                            if (distanceBetweenCameraAndTriangle < minDistance)
+                            minDistance = distanceBetweenCameraAndTriangle;
+                            nearestTriangle = intersectedTriangle;
+                            flag = true;
+                        }
+                        
+                        if (node.IsLeaf())
+                        {
+                            if (flag)
+                                break;
+                        }
+                        else
+                        {
+                            foreach (var child in node.childNodes
+                                .Where(child => Extension.IsRayIntersectBox(child.pMin, child.pMax, Camera, rayDirection, ref t)))
                             {
-                                nearestTriangle = triangle;
-                                minDistance = distanceBetweenCameraAndTriangle;
+                                priorityQueue.Enqueue(child,t);
                             }
                         }
                     }
-
+                    
                     if (nearestTriangle is null)
                     {
-                        image[i].Add(new Pixel(50, 50, 50));
+                        image[i].Add(new Pixel(20, 20, 20));
                     }
                     else
                     {
                         var normal = nearestTriangle.GetNormal();
-                        var lightRay = Vector3.Normalize(LightPos - intersectionPoint);
+                        var lightRay = Vector3.Normalize(LightPos - nearestTriangleIntersectionPoint);
                         var dotProduct = Vector3.Dot(lightRay, normal);
                         var facingRatio = Math.Max(0, dotProduct);
+                        //
+                        // var X = object3D.Vertices[g[0].NormalIndex - 1].X;
+                        // var Y = object3D.Vertices[g[0].NormalIndex - 1].Y;
+                        // var Z = object3D.Vertices[g[0].NormalIndex - 1].Z;
+                        // var n0 = Vector3.Normalize(new Vector3(X,Y,Z));
+                        //
+                        // X = object3D.Vertices[g[1].NormalIndex - 1].X;
+                        // Y = object3D.Vertices[g[1].NormalIndex - 1].Y;
+                        // Z = object3D.Vertices[g[1].NormalIndex - 1].Z;
+                        // var n1 = Vector3.Normalize(new Vector3(X,Y,Z));
+                        //
+                        // X = object3D.Vertices[g[2].NormalIndex - 1].X;
+                        // Y = object3D.Vertices[g[2].NormalIndex - 1].Y;
+                        // Z = object3D.Vertices[g[2].NormalIndex - 1].Z;
+                        // var n2 = Vector3.Normalize(new Vector3(X,Y,Z));
+                        //
+                        // var smoothNormal = Vector3.Normalize((1 - uv.X - uv.Y) * n0 + uv.X * n1 + uv.Y * n2);
+                        //
+                        // var lightRay = Vector3.Normalize(LightPos - intersectionPoint);
+                        // var dotProduct = Vector3.Dot(lightRay, smoothNormal);
+                        // var facingRatio = Math.Max(0, dotProduct);
 
-                        image[i].Add(new Pixel((byte)(255 * facingRatio), (byte)(69 * facingRatio), (byte)(0 * facingRatio)));
+                        image[i].Add(new Pixel((byte) (255 * facingRatio), (byte) (69 * facingRatio),
+                            (byte) (0 * facingRatio)));
                     }
+                    
+                    //--------------------------------------------------------
                 }
             }
 
+            wath.Stop();
+            var time = wath.ElapsedMilliseconds / 1000;
+            Console.WriteLine($"Exec time: {time} s");
+            Console.WriteLine($"Num of triangle: {object3D.Groups[0].Faces.Count}");
+            Console.WriteLine($"Num of intersection tests: {num}");
+            
             return image;
         }
 
@@ -109,21 +151,66 @@ namespace Raytracer
             var c = Vector3.Dot(k, k) - r * r;
 
             var D = b * b - 4 * a * c;
-            
-            return D >=0 ;
+
+            return D >= 0;
+        }
+        
+        private static Triangle FindIntersectionInBox(List<Face> facesInBox, IList<Vertex> vertices,
+            Vector3 rayDirection, ref int num, ref Vector3 intersectionPoint)
+        {
+            Triangle nearestTriangle = null;
+            var minDistance = float.MaxValue;
+            Vector2 uv = new Vector2();
+            foreach (var face in facesInBox)
+            {
+                num++;
+
+                var X = vertices[face[0].VertexIndex - 1].X;
+                var Y = vertices[face[0].VertexIndex - 1].Y;
+                var Z = vertices[face[0].VertexIndex - 1].Z;
+                var A = new Vector3(X, Y, Z);
+
+                X = vertices[face[1].VertexIndex - 1].X;
+                Y = vertices[face[1].VertexIndex - 1].Y;
+                Z = vertices[face[1].VertexIndex - 1].Z;
+                var B = new Vector3(X, Y, Z);
+
+                X = vertices[face[2].VertexIndex - 1].X;
+                Y = vertices[face[2].VertexIndex - 1].Y;
+                Z = vertices[face[2].VertexIndex - 1].Z;
+                var C = new Vector3(X, Y, Z);
+
+                var triangle = new Triangle(A, B, C);
+
+                float u = 0, v = 0;
+                if (IsIntersectTriangle(Camera, rayDirection, triangle, ref intersectionPoint, ref u,
+                    ref v))
+                {
+                    var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, Camera);
+                    
+                    if (distanceBetweenCameraAndTriangle < minDistance)
+                    {
+                        uv.X = u;
+                        uv.Y = v;
+                        nearestTriangle = triangle;
+                        minDistance = distanceBetweenCameraAndTriangle;
+                    }
+                }
+            }
+
+            return nearestTriangle;
         }
 
-        
         // Möller–Trumbore intersection algorithm 
         // rewrite from wiki
         private static bool IsIntersectTriangle(Vector3 rayOrigin, Vector3 rayDirection, Triangle triangle,
-            ref Vector3 outIntersectionPoint)
+            ref Vector3 outIntersectionPoint, ref float u, ref float v)
         {
             const float EPSILON = (float) 0.0000001;
 
             Vector3 edge1, edge2;
             Vector3 h, s, q;
-            float a, f, u, v;
+            float a, f;
 
             edge1 = triangle.B - triangle.A;
             edge2 = triangle.C - triangle.A;

@@ -21,5 +21,10 @@ namespace ConverterBase.GeomHelper
         {
             return Vector3.Normalize(Vector3.Cross(B - A, C - A));
         }
+
+        public Vector3 GetCentroid()
+        {
+            return new Vector3((A.X + B.X + C.X) / 3, (A.Y + B.Y + C.Y) / 3, (A.Z + B.Z + C.Z) / 3);
+        }
     }
 }
