@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Numerics;
-using System.Threading.Tasks.Dataflow;
 using ConverterBase.GeomHelper;
-using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.Data.VertexData;
+using ObjLoader.Loader.Loaders;
 
 namespace Raytracer
 {
@@ -18,31 +16,19 @@ namespace Raytracer
                    IsDotInBox(pMin, pMax, triangle.C);
         }
 
-        public static List<Face> FindTrianglesInBox(Vector3 pMin, Vector3 pMax, ref List<Face> faces, IList<Vertex> vertices)
+        public static bool IsDotInBox(Vector3 pMin, Vector3 pMax, Vector3 dot)
         {
-            var faceInBox = new List<Face>();
-            var faceNotInBox = new List<Face>();
-            Console.WriteLine($"FACES : {faces.Count}");
+            return pMin.X <= dot.X && dot.X <= pMax.X && 
+                   pMin.Y <= dot.Y && dot.Y <= pMax.Y &&
+                   pMin.Z <= dot.Z && dot.Z <= pMax.Z;
+        }
+        public static List<Triangle> FindTrianglesInBox(Vector3 pMin, Vector3 pMax, ref List<Triangle> faces)
+        {
+            var faceInBox = new List<Triangle>();
+            var faceNotInBox = new List<Triangle>();
             foreach (var face in faces)
             {
-                var X = vertices[face[0].VertexIndex - 1].X;
-                var Y = vertices[face[0].VertexIndex - 1].Y;
-                var Z = vertices[face[0].VertexIndex - 1].Z;
-                var A = new Vector3(X,Y,Z);
-                        
-                X = vertices[face[1].VertexIndex - 1].X;
-                Y = vertices[face[1].VertexIndex - 1].Y;
-                Z = vertices[face[1].VertexIndex - 1].Z;
-                var B = new Vector3(X,Y,Z);
-                        
-                X = vertices[face[2].VertexIndex - 1].X;
-                Y = vertices[face[2].VertexIndex - 1].Y;
-                Z = vertices[face[2].VertexIndex - 1].Z;
-                var C = new Vector3(X,Y,Z);
-                        
-                var triangle = new Triangle(A, B, C);
-            
-                if (IsTriangleInBox(pMin, pMax, triangle))
+                if (IsTriangleInBox(pMin, pMax, face))
                 {
                     faceInBox.Add(face);
                 }
@@ -56,17 +42,6 @@ namespace Raytracer
             faces.AddRange(faceNotInBox);
             return faceInBox;
         }
-
-        public static void FindIntersectedBox(SortedDictionary<float, OctreeNode> priorityQueue )
-        {
-        }
-
-        public static bool IsRayIntersectBox(Vector3 pMin, Vector3 pMax, Vector3 origin, Vector3 direction)
-        {
-            float t = 0;
-            return IsRayIntersectBox(pMin, pMax, origin, direction, ref t);
-        }
-
         public static bool IsRayIntersectBox(Vector3 pMin, Vector3 pMax, Vector3 origin, Vector3 direction, ref float t)
         {
             var t1 = (pMin.X - origin.X) * (1f / direction.X);
@@ -97,42 +72,67 @@ namespace Raytracer
             t = tMin < 0 ? tMax : tMin;
             return true;
         }
-        
-        public static bool IsDotInBox(Vector3 pMin, Vector3 pMax, Vector3 dot)
+        public static List<Triangle> GetTrianglesList(LoadResult object3D)
         {
-            return pMin.X <= dot.X && dot.X <= pMax.X && 
-                   pMin.Y <= dot.Y && dot.Y <= pMax.Y &&
-                   pMin.Z <= dot.Z && dot.Z <= pMax.Z;
+            var faces = new List<Triangle>();
+            foreach (var face in object3D.Groups[0].Faces)
+            {
+                var X = object3D.Vertices[face[0].VertexIndex - 1].X;
+                var Y = object3D.Vertices[face[0].VertexIndex - 1].Y;
+                var Z = object3D.Vertices[face[0].VertexIndex - 1].Z;
+                var A = new Vector3(X, Y, Z);
+
+                X = object3D.Vertices[face[1].VertexIndex - 1].X;
+                Y = object3D.Vertices[face[1].VertexIndex - 1].Y;
+                Z = object3D.Vertices[face[1].VertexIndex - 1].Z;
+                var B = new Vector3(X, Y, Z);
+
+                X = object3D.Vertices[face[2].VertexIndex - 1].X;
+                Y = object3D.Vertices[face[2].VertexIndex - 1].Y;
+                Z = object3D.Vertices[face[2].VertexIndex - 1].Z;
+                var C = new Vector3(X, Y, Z);
+
+                faces.Add(new Triangle(A, B, C));
+            }
+
+            return faces;
+        }
+        public static void Transform(ref LoadResult object3D, Matrix4x4 rotationZ, Matrix4x4 rotationY, Matrix4x4 rotationX, Matrix4x4 scaleM, Matrix4x4 translationM)
+        {
+            var transformM = rotationZ * rotationY * rotationX * scaleM * translationM;
+            
+            for (var i = 0; i < object3D.Vertices.Count; i++)
+            {
+                var v3 = new Vector3(object3D.Vertices[i].X, object3D.Vertices[i].Y, object3D.Vertices[i].Z);
+            
+                var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
+                var res = transformM.MultiplyBy(v4);
+            
+                object3D.Vertices[i] = new Vertex(res.X, res.Y, res.Z);
+            }
         }
 
-        // public static Transform()
-        // {
-        //      
-        //     var transformM = rotationY * rotationX * scaleM * translationM;
-        //     
-        //     var xMin = float.MaxValue;
-        //     var yMin = float.MaxValue;
-        //     var zMin = float.MaxValue;
-        //     var xMax = float.MinValue;
-        //     var yMax = float.MinValue;
-        //     var zMax = float.MinValue;
-        //     
-        //     for (var i = 0; i < object3D.Vertices.Count; i++)
-        //     {
-        //         var v3 = new Vector3(object3D.Vertices[i].X, object3D.Vertices[i].Y, object3D.Vertices[i].Z);
-        //     
-        //         var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
-        //         var res = transformM.MultiplyBy(v4);
-        //     
-        //         object3D.Vertices[i] = new Vertex(res.X, res.Y, res.Z);
-        //     
-        //         xMin = Math.Min(xMin, object3D.Vertices[i].X);
-        //         yMin = Math.Min(yMin, object3D.Vertices[i].Y);
-        //         zMin = Math.Min(zMin, object3D.Vertices[i].Z);
-        //         xMax = Math.Max(xMax, object3D.Vertices[i].X);
-        //         yMax = Math.Max(yMax, object3D.Vertices[i].Y);
-        //         zMax = Math.Max(zMax, object3D.Vertices[i].Z);
-        //     }
-        // }
+        public static void BoundingBoxCoordinates(LoadResult object3D, ref Vector3 pMin, ref Vector3 pMax)
+        {
+            var xMin = float.MaxValue;
+            var yMin = float.MaxValue;
+            var zMin = float.MaxValue;
+            var xMax = float.MinValue;
+            var yMax = float.MinValue;
+            var zMax = float.MinValue;
+            
+            foreach (var t in object3D.Vertices)
+            {
+                xMin = Math.Min(xMin, t.X);
+                yMin = Math.Min(yMin, t.Y);
+                zMin = Math.Min(zMin, t.Z);
+                xMax = Math.Max(xMax, t.X);
+                yMax = Math.Max(yMax, t.Y);
+                zMax = Math.Max(zMax, t.Z);
+            }
+
+            pMin = new Vector3(xMin, yMin, zMin);
+            pMax = new Vector3(xMax, yMax, zMax);
+        }
     }
 }

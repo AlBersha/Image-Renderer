@@ -1,121 +1,110 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Xml.Linq;
-using ObjLoader.Loader.Data.Elements;
-using ObjLoader.Loader.Data.VertexData;
+using ConverterBase.GeomHelper;
 
 namespace Raytracer
 {
     public class OctreeNode
     {
-        public List<OctreeNode> childNodes;
-        public OctreeNode Parent;
-        public List<Face> Faces;
+        public List<OctreeNode> ChildNodes;
+        //public OctreeNode Parent;
+        public List<Triangle> Faces;
 
-        public Vector3 pMin;
-        public Vector3 pMax;
-        public OctreeNode(Vector3 pMin, Vector3 pMax, IList<Face> faces, OctreeNode parent)
+        public Vector3 Min;
+        public Vector3 Max;
+        public OctreeNode(Vector3 pMin, Vector3 pMax, List<Triangle> faces, OctreeNode parent)
         {
-            this.pMin = pMin;
-            this.pMax = pMax;
-            Faces = new List<Face>(faces);
+            Min = pMin;
+            Max = pMax;
+            Faces = new List<Triangle>(faces);
 
-            Parent = parent;
-            childNodes = null;
+           // Parent = parent;
+            ChildNodes = null;
         }
 
-        public void Divide(IList<Vertex> vertices)
+        public void Divide()
         {
             if (Faces.Count < 10)
                 return;
             
-            childNodes = new List<OctreeNode>(8);
+            ChildNodes = new List<OctreeNode>(8);
             var centroid = GetCentroid();
 
             //bottomFrontLeft
-            var p_Min = new Vector3(pMin.X, pMin.Y, centroid.Z);
-            var p_Max = new Vector3(centroid.X, centroid.Y, pMax.Z);
-            var faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces, this));
-            childNodes[0].Divide(vertices);
+            var boxMin = new Vector3(Min.X, Min.Y, centroid.Z);
+            var boxMax = new Vector3(centroid.X, centroid.Y, Max.Z);
+            var faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces, this));
+            ChildNodes[0].Divide();
             //bottomFrontRight
-            p_Min = new Vector3(centroid.X, pMin.Y, centroid.Z);
-            p_Max = new Vector3(pMax.X, centroid.Y, pMax.Z);
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[1].Divide(vertices);
+            boxMin = new Vector3(centroid.X, Min.Y, centroid.Z);
+            boxMax = new Vector3(Max.X, centroid.Y, Max.Z);
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[1].Divide();
             //topFrontLeft
-            p_Min = new Vector3(pMin.X, centroid.Y, centroid.Z);
-            p_Max = new Vector3(centroid.X, pMax.Y, pMax.Z);
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[2].Divide(vertices);
+            boxMin = new Vector3(Min.X, centroid.Y, centroid.Z);
+            boxMax = new Vector3(centroid.X, Max.Y, Max.Z);
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[2].Divide();
             //topFrontRight
-            p_Min = centroid;
-            p_Max = pMax;
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[3].Divide(vertices);
+            boxMin = centroid;
+            boxMax = Max;
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[3].Divide();
             //bottomBackLeft
-            p_Min = pMin;
-            p_Max = centroid;
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[4].Divide(vertices);
+            boxMin = Min;
+            boxMax = centroid;
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[4].Divide();
             //bottomBackRight
-            p_Min = new Vector3(centroid.X, pMin.Y, pMin.Z);
-            p_Max = new Vector3(pMax.X, centroid.Y, centroid.Z);
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[5].Divide(vertices);
+            boxMin = new Vector3(centroid.X, Min.Y, Min.Z);
+            boxMax = new Vector3(Max.X, centroid.Y, centroid.Z);
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[5].Divide();
             //topBackLeft
-            p_Min = new Vector3(pMin.X, centroid.Y, pMin.Z);
-            p_Max =new Vector3(centroid.X, pMax.Y, centroid.Z);
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[6].Divide(vertices);
+            boxMin = new Vector3(Min.X, centroid.Y, Min.Z);
+            boxMax = new Vector3(centroid.X, Max.Y, centroid.Z);
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[6].Divide();
             //topBackRight
-            p_Min = new Vector3(centroid.X, centroid.Y, pMin.Z);
-            p_Max =new Vector3(pMax.X, pMax.Y, centroid.Z);
-            faces = Extension.FindTrianglesInBox(p_Min, p_Max, ref Faces, vertices);
-            childNodes.Add(new OctreeNode(p_Min, p_Max, faces,this));
-            childNodes[7].Divide(vertices);
+            boxMin = new Vector3(centroid.X, centroid.Y, Min.Z);
+            boxMax = new Vector3(Max.X, Max.Y, centroid.Z);
+            faces = Extension.FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
+            ChildNodes[7].Divide();
         }
 
         private Vector3 GetCentroid()
         {
-            return new Vector3((pMax.X + pMin.X) / 2, (pMax.Y + pMin.Y) / 2, (pMax.Z + pMin.Z) / 2);
+            return new Vector3((Max.X + Min.X) / 2, (Max.Y + Min.Y) / 2, (Max.Z + Min.Z) / 2);
         }
 
         public bool IsLeaf()
         {
-            return childNodes == null;
-        }
-
-        public List<Face> GetParentsFaces()
-        {
-            var list = new List<Face>();
-            if (Parent == null)
-                return Faces;
-            
-            list.AddRange(Faces);
-            list.AddRange(Parent.GetParentsFaces());
-            return list;
+            return ChildNodes == null;
         }
     }
     
     public class Octree
     {
-        public OctreeNode Root;
-        public Octree(Vector3 pMin, Vector3 pMax, IList<Face> faces, IList<Vertex> vertices)
+        public readonly OctreeNode Root;
+        public Octree(Vector3 pMin, Vector3 pMax, List<Triangle> faces)
         {
             Root = new OctreeNode(pMin, pMax, faces, null);
-            Root.Divide(vertices);
-        }
-
-        public void Traverse()
-        {
+          
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            Root.Divide();
+            watch.Stop();
+            var time = watch.ElapsedMilliseconds / 1000;
             
+            Console.WriteLine($"Octree build time: {time} s");
         }
     }
 }

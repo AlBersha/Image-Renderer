@@ -90,13 +90,14 @@ namespace Renderer
             // converter.Convert(commandProcessor.SourceFile, commandProcessor.OutputFile);
             // Console.WriteLine("Image converted");
 
-            var width = 1500;
-            var height = 1500;
+            var width = 1000;
+            var height = 1000;
             
             var path = "C:\\Users\\mmaks\\Desktop\\cow.obj";
             string outputPath = "C:\\Users\\mmaks\\Desktop\\100x100.ppm";
             
             var object3D = ObjReader.ReadObjFile(path);
+        
             var translationM = new Matrix4x4 
             (
                 1, 0, 0, 0,
@@ -125,43 +126,27 @@ namespace Renderer
                 0, 0, -1, 0,
                 0, 0, 0, 1
             );
+            var rotationZ = new Matrix4x4 
+            (
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            );
             
-            var transformM = rotationY * rotationX * scaleM * translationM;
-            
-            var xMin = float.MaxValue;
-            var yMin = float.MaxValue;
-            var zMin = float.MaxValue;
-            var xMax = float.MinValue;
-            var yMax = float.MinValue;
-            var zMax = float.MinValue;
-            
-            for (var i = 0; i < object3D.Vertices.Count; i++)
-            {
-                var v3 = new Vector3(object3D.Vertices[i].X, object3D.Vertices[i].Y, object3D.Vertices[i].Z);
-            
-                var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
-                var res = transformM.MultiplyBy(v4);
-            
-                object3D.Vertices[i] = new Vertex(res.X, res.Y, res.Z);
-            
-                xMin = Math.Min(xMin, object3D.Vertices[i].X);
-                yMin = Math.Min(yMin, object3D.Vertices[i].Y);
-                zMin = Math.Min(zMin, object3D.Vertices[i].Z);
-                xMax = Math.Max(xMax, object3D.Vertices[i].X);
-                yMax = Math.Max(yMax, object3D.Vertices[i].Y);
-                zMax = Math.Max(zMax, object3D.Vertices[i].Z);
-            }
-            
-            var min = new Vector3(xMin, yMin, zMin);
-            var max = new Vector3(xMax, yMax, zMax);
-            
-            var pixelMatrix = Tracer.Trace(width,height, object3D, min,max);
+            Extension.Transform(ref object3D,rotationZ, rotationY,rotationX, scaleM,translationM);
+            var min = new Vector3();
+            var max = new Vector3();
+
+            Extension.BoundingBoxCoordinates(object3D, ref min, ref max);
+            var faces = Extension.GetTrianglesList(object3D);
+
+            var octree = new Octree(min, max, faces);
+            var pixelMatrix = Tracer.Trace(width,height, octree);
             
             IImage image = new PPM(width, height, pixelMatrix);
             var ppmWriter = new PPMWriter();
             ppmWriter.WriteImage(image, outputPath);
-
-            //----------
         }
     }
 }
