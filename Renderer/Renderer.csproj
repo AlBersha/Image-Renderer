@@ -10,6 +10,11 @@
       <ProjectReference Include="..\GifFormat\GifFormat.csproj" />
       <ProjectReference Include="..\PNGFormat\PNGFormat.csproj" />
       <ProjectReference Include="..\PPMFormat\PPMFormat.csproj" />
+      <ProjectReference Include="..\Raytracer\Raytracer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CjClutter.ObjLoader" Version="1.0.0" />
     </ItemGroup>
 
 </Project>
