@@ -6,37 +6,49 @@ using ConverterBase;
 using ConverterBase.GeomHelper;
 
 using Priority_Queue;
+using Raytracer.Optimisation;
+using Raytracer.Scene;
 
 
 namespace Raytracer
 {
-    public static class Tracer
+    public class Tracer
     {
+        private SceneCreator _sceneCreator;
         public static int ImageWidth;
         public static int ImageHeight;
-        public static int Fov = 80;
+        // public static int Fov = 80;
         public static Vector3 Camera => new Vector3(0, 0, 2);
         public static float ScreenZ => 1f;
-        public static Vector3 LightPos => new Vector3(2, 2, 2);
+        public static Vector3 LightPos => new Vector3(-2, 2, 0);
         
-        public static float ImageAspectRatio;
+        // public static float ImageAspectRatio;
+
+        public Tracer()
+        {
+            
+        }
+        public Tracer(SceneCreator scene)
+        {
+            _sceneCreator = scene;
+        }
         
-        public static List<List<Pixel>> Trace(int width, int height, Octree octree)
+        public List<List<Pixel>> Trace(int width, int height, Octree octree)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             ImageWidth = width;
             ImageHeight = height;    
-            ImageAspectRatio = ImageWidth / ImageHeight; 
+            // ImageAspectRatio = ImageWidth / ImageHeight; 
             var num = 0; 
 
             var image = new List<List<Pixel>>();
             for (var i = 0; i < ImageHeight; i++)
             {
                 image.Add(new List<Pixel>());
-                var y = YToScreenCoordinates(i);
+                var y = _sceneCreator.SetYCoordinate(i);
                 for (var j = 0; j < ImageWidth; j++)
                 {
-                    var x = XToScreenCoordinates(j);
+                    var x = _sceneCreator.SetXCoordinate(j);
                     
                     var pixelCenterPoint = new Vector3(x, y, ScreenZ);
                     var rayDirection = pixelCenterPoint - Camera;
@@ -133,7 +145,7 @@ namespace Raytracer
             foreach (var triangle in facesInBox)
             {
                 num++;
-                if (IsIntersectTriangle(Camera, rayDirection, triangle, ref intersectionPoint))
+                if (triangle.IsIntersectTriangle(Camera, rayDirection, ref intersectionPoint))
                 {
                     var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, Camera);
                     
@@ -150,54 +162,54 @@ namespace Raytracer
 
         // Möller–Trumbore intersection algorithm 
         // rewrite from wiki
-        private static bool IsIntersectTriangle(Vector3 rayOrigin, Vector3 rayDirection, Triangle triangle,
-            ref Vector3 outIntersectionPoint)
-        {
-            const float EPSILON = (float) 0.0000001;
+        // private static bool IsIntersectTriangle(Vector3 rayOrigin, Vector3 rayDirection, Triangle triangle,
+        //     ref Vector3 outIntersectionPoint)
+        // {
+        //     const float EPSILON = (float) 0.0000001;
+        //
+        //     Vector3 edge1, edge2;
+        //     Vector3 h, s, q;
+        //     float a, f, u, v;
+        //
+        //     edge1 = triangle.B - triangle.A;
+        //     edge2 = triangle.C - triangle.A;
+        //
+        //     h = Vector3.Cross(edge2, rayDirection);
+        //     a = Vector3.Dot(h, edge1);
+        //
+        //     if (a > -EPSILON && a < EPSILON)
+        //         return false;
+        //
+        //     f = (float) (1.0 / a);
+        //     s = rayOrigin - triangle.A;
+        //     u = f * Vector3.Dot(s, h);
+        //
+        //     if (u < 0.0 || u > 1.0)
+        //         return false;
+        //
+        //     q = Vector3.Cross(edge1, s);
+        //     v = f * Vector3.Dot(rayDirection, q);
+        //     if (v < 0.0 || u + v > 1.0)
+        //         return false;
+        //
+        //     float t = f * Vector3.Dot(edge2, q);
+        //     if (t > EPSILON)
+        //     {
+        //         outIntersectionPoint = rayOrigin + rayDirection * t;
+        //         return true;
+        //     }
+        //
+        //     return false;
+        // }
 
-            Vector3 edge1, edge2;
-            Vector3 h, s, q;
-            float a, f, u, v;
-
-            edge1 = triangle.B - triangle.A;
-            edge2 = triangle.C - triangle.A;
-
-            h = Vector3.Cross(edge2, rayDirection);
-            a = Vector3.Dot(h, edge1);
-
-            if (a > -EPSILON && a < EPSILON)
-                return false;
-
-            f = (float) (1.0 / a);
-            s = rayOrigin - triangle.A;
-            u = f * Vector3.Dot(s, h);
-
-            if (u < 0.0 || u > 1.0)
-                return false;
-
-            q = Vector3.Cross(edge1, s);
-            v = f * Vector3.Dot(rayDirection, q);
-            if (v < 0.0 || u + v > 1.0)
-                return false;
-
-            float t = f * Vector3.Dot(edge2, q);
-            if (t > EPSILON)
-            {
-                outIntersectionPoint = rayOrigin + rayDirection * t;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static float XToScreenCoordinates(float x)
-        { 
-            return (float) ((2 * ((x + 0.5) / ImageWidth) - 1) * Math.Tan(Fov / 2f * Math.PI / 180) * ImageAspectRatio);
-        }
-
-        private static float YToScreenCoordinates(float y)
-        {
-            return (float) ((1 - 2 * ((y + 0.5) / ImageHeight)) * Math.Tan(Fov / 2f * Math.PI / 180));
-        }
+        // private static float XToScreenCoordinates(float x)
+        // { 
+        //     return (float) ((2 * ((x + 0.5) / ImageWidth) - 1) * Math.Tan(Fov / 2f * Math.PI / 180) * ImageAspectRatio);
+        // }
+        //
+        // private static float YToScreenCoordinates(float y)
+        // {
+        //     return (float) ((1 - 2 * ((y + 0.5) / ImageHeight)) * Math.Tan(Fov / 2f * Math.PI / 180));
+        // }
     }
 }

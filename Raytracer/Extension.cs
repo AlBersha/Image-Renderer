@@ -9,39 +9,39 @@ namespace Raytracer
 {
     public static class Extension
     {
-        public static bool IsTriangleInBox(Vector3 pMin, Vector3 pMax, Triangle triangle)
-        {
-            return IsDotInBox(pMin, pMax, triangle.A) &&
-                   IsDotInBox(pMin, pMax, triangle.B) &&
-                   IsDotInBox(pMin, pMax, triangle.C);
-        }
+        // public static bool IsTriangleInBox(Vector3 pMin, Vector3 pMax, Triangle triangle)
+        // {
+        //     return IsDotInBox(pMin, pMax, triangle.A) &&
+        //            IsDotInBox(pMin, pMax, triangle.B) &&
+        //            IsDotInBox(pMin, pMax, triangle.C);
+        // }
 
-        public static bool IsDotInBox(Vector3 pMin, Vector3 pMax, Vector3 dot)
-        {
-            return pMin.X <= dot.X && dot.X <= pMax.X && 
-                   pMin.Y <= dot.Y && dot.Y <= pMax.Y &&
-                   pMin.Z <= dot.Z && dot.Z <= pMax.Z;
-        }
-        public static List<Triangle> FindTrianglesInBox(Vector3 pMin, Vector3 pMax, ref List<Triangle> faces)
-        {
-            var faceInBox = new List<Triangle>();
-            var faceNotInBox = new List<Triangle>();
-            foreach (var face in faces)
-            {
-                if (IsTriangleInBox(pMin, pMax, face))
-                {
-                    faceInBox.Add(face);
-                }
-                else
-                {
-                    faceNotInBox.Add(face);
-                }
-            }
-
-            faces.Clear();
-            faces.AddRange(faceNotInBox);
-            return faceInBox;
-        }
+        // public static bool IsDotInBox(Vector3 pMin, Vector3 pMax, Vector3 dot)
+        // {
+        //     return pMin.X <= dot.X && dot.X <= pMax.X && 
+        //            pMin.Y <= dot.Y && dot.Y <= pMax.Y &&
+        //            pMin.Z <= dot.Z && dot.Z <= pMax.Z;
+        // }
+        // public static List<Triangle> FindTrianglesInBox(Vector3 pMin, Vector3 pMax, ref List<Triangle> faces)
+        // {
+        //     var faceInBox = new List<Triangle>();
+        //     var faceNotInBox = new List<Triangle>();
+        //     foreach (var face in faces)
+        //     {
+        //         if (IsTriangleInBox(pMin, pMax, face))
+        //         {
+        //             faceInBox.Add(face);
+        //         }
+        //         else
+        //         {
+        //             faceNotInBox.Add(face);
+        //         }
+        //     }
+        //
+        //     faces.Clear();
+        //     faces.AddRange(faceNotInBox);
+        //     return faceInBox;
+        // }
         public static bool IsRayIntersectBox(Vector3 pMin, Vector3 pMax, Vector3 origin, Vector3 direction, ref float t)
         {
             var t1 = (pMin.X - origin.X) * (1f / direction.X);
@@ -96,7 +96,7 @@ namespace Raytracer
             }
 
             return faces;
-        }
+        } //todo move to object handler
         public static void Transform(ref LoadResult object3D, Matrix4x4 rotationZ, Matrix4x4 rotationY, Matrix4x4 rotationX, Matrix4x4 scaleM, Matrix4x4 translationM)
         {
             var transformM = rotationZ * rotationY * rotationX * scaleM * translationM;

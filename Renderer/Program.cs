@@ -5,6 +5,7 @@ using ConverterBase.GeomHelper;
 using ObjLoader.Loader.Data.VertexData;
 using Raytracer;
 using ObjLoader.Loader.Loaders;
+using Raytracer.Optimisation;
 
 namespace Renderer
 {
@@ -91,10 +92,10 @@ namespace Renderer
             // Console.WriteLine("Image converted");
 
             var width = 1000;
-            var height = 1000;
+            var height = 800;
             
-            var path = "C:\\Users\\mmaks\\Desktop\\cow.obj";
-            string outputPath = "C:\\Users\\mmaks\\Desktop\\100x100.ppm";
+            var path = "C:\\Users\\obers\\KPI\\graphics\\cow.obj";
+            string outputPath = "C:\\Users\\obers\\KPI\\graphics\\cow.ppm";
             
             var object3D = ObjReader.ReadObjFile(path);
         
@@ -141,8 +142,10 @@ namespace Renderer
             Extension.BoundingBoxCoordinates(object3D, ref min, ref max);
             var faces = Extension.GetTrianglesList(object3D);
 
-            var octree = new Octree(min, max, faces);
-            var pixelMatrix = Tracer.Trace(width,height, octree);
+            var octree = new Octree();
+            octree.CreateTree(min, max, faces);
+            var tracer = new Tracer();
+            var pixelMatrix = tracer.Trace(width,height, octree);
             
             IImage image = new PPM(width, height, pixelMatrix);
             var ppmWriter = new PPMWriter();
