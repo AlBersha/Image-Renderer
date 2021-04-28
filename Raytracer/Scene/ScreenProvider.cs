@@ -4,31 +4,18 @@ namespace Raytracer.Scene
 {
     public class ScreenProvider: IScreenProvider
     {
-        
         private float ImageAspectRatio => ImageWidth / ImageHeight;
         private float ImageWidth { get; set; }
         private float ImageHeight { get; set; }
         private int Fov { get; set; }
         private float ScreenZ { get; set; }
 
-        // public ScreenProvider()
-        // {
-        //     ImageWidth = 600;
-        //     ImageHeight = 800;
-        //     Fov = 90;
-        // }
-
-        public void SetScreenProperties(IParamsProvider _params)
+        public void SetScreenProperties(IParamsProvider @params)
         {
-            ImageWidth = _params.ImageWidth;
-            ImageHeight = _params.ImageHeight;
-            Fov = _params.Fov;
-            ScreenZ = _params.ScreenZ;
-        }
-
-        public void GetScreenProperties()
-        {
-            throw new NotImplementedException();
+            ImageWidth = @params.ImageWidth;
+            ImageHeight = @params.ImageHeight;
+            Fov = @params.Fov;
+            ScreenZ = @params.ScreenZ;
         }
 
         public float XToScreenCoordinates(float x)

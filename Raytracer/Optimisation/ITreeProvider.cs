@@ -7,6 +7,7 @@ namespace Raytracer.Optimisation
 {
     public interface ITreeProvider
     {
-        public void CreateTree(ObjectModel objectModel);
+        public INode Root { get; set; }
+        public ITreeProvider CreateTree(ObjectModel objectModel);
     }
 }

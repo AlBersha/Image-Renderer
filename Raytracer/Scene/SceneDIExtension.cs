@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Raytracer.Scene.Interfaces;
 
 namespace Raytracer.Scene
 {

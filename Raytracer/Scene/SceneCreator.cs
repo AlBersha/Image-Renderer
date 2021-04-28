@@ -1,21 +1,21 @@
-﻿using System.Numerics;
+﻿using Raytracer.Scene.Interfaces;
 
 namespace Raytracer.Scene
 {
     public class SceneCreator: ISceneCreator
     {
         private IScreenProvider _screen;
-        private IParamsProvider _paramsProvider;
+        public IParamsProvider ParamsProvider { get; }
 
         public SceneCreator(IParamsProvider paramsProvider, IScreenProvider screen)
         {
-            _paramsProvider = paramsProvider;
+            ParamsProvider = paramsProvider;
             _screen = screen;
         }
 
         public void CreateScreen()
         {
-            _screen.SetScreenProperties(_paramsProvider);
+            _screen.SetScreenProperties(ParamsProvider);
         }
 
         public float SetXScreenCoordinate(float x)

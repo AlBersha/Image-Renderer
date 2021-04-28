@@ -2,57 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Security.Principal;
 using ConverterBase;
 using ConverterBase.GeomHelper;
-
 using Priority_Queue;
 using Raytracer.Optimisation;
-using Raytracer.Scene;
+using Raytracer.Scene.Interfaces;
 
-
-namespace Raytracer
+namespace Raytracer.Tracing
 {
-    public class Tracer
-    {
-        private ISceneCreator _sceneCreator;
-
-        public Tracer()
+    public class Raytracer: ITracer
+    {   
+        public List<List<Pixel>> Trace(ISceneCreator sceneCreator, ITreeProvider octree)
         {
-            
-        }
-        public Tracer(ISceneCreator scene)
-        {
-            _sceneCreator = scene;
-        }
-        
-        public List<List<Pixel>> Trace(float screenZ, Octree octree)
-        {
-            var camera = _sceneCreator.SetCamera();
-            var light = _sceneCreator.SetLight();
-            
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            
-            _sceneCreator.CreateScreen();
-            
             var num = 0; 
 
             var image = new List<List<Pixel>>();
-            for (var i = 0; i < height; i++)
+            for (var i = 0; i < sceneCreator.ParamsProvider.ImageHeight; i++)
             {
                 image.Add(new List<Pixel>());
-                var y = _sceneCreator.SetXScreenCoordinate(i);
-                for (var j = 0; j < width; j++)
+                var y = sceneCreator.SetXScreenCoordinate(i);
+                for (var j = 0; j < sceneCreator.ParamsProvider.ImageWidth; j++)
                 {
-                    var x = _sceneCreator.SetYScreenCoordinate(j);
+                    var x = sceneCreator.SetYScreenCoordinate(j);
                     
-                    var pixelCenterPoint = new Vector3(x, y, screenZ);
-                    var rayDirection = pixelCenterPoint - camera;
+                    var pixelCenterPoint = new Vector3(x, y, sceneCreator.ParamsProvider.ScreenZ);
+                    var rayDirection = pixelCenterPoint - sceneCreator.ParamsProvider.Camera;
                     rayDirection = Vector3.Normalize(rayDirection);
                   
                     float t = 0;
-                    var priorityQueue = new SimplePriorityQueue<OctreeNode, float>();
-                    if (IsRayIntersectBox(octree.Root.Min, octree.Root.Max, camera, rayDirection, ref t))
+                    var priorityQueue = new SimplePriorityQueue<INode, float>();
+                    if (IsRayIntersectBox(octree.Root.MinBoundary, octree.Root.MaxBoundary, sceneCreator.ParamsProvider.Camera, rayDirection, ref t))
                     {
                         priorityQueue.Enqueue(octree.Root,t);
                     }
@@ -66,8 +46,8 @@ namespace Raytracer
                         var node = priorityQueue.Dequeue();
                         var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
                         var intersectedTriangle =
-                            FindIntersectionInBox(node.Faces, rayDirection, camera, ref num, ref intersectionPoint);
-                        var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, camera);
+                            FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint);
+                        var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
                         if (distanceBetweenCameraAndTriangle < minDistance)
                         {
                             minDistance = distanceBetweenCameraAndTriangle;
@@ -83,7 +63,7 @@ namespace Raytracer
                         else
                         {
                             foreach (var child in node.ChildNodes
-                                .Where(child => IsRayIntersectBox(child.Min, child.Max, camera, rayDirection, ref t)))
+                                .Where(child => IsRayIntersectBox(child.MinBoundary, child.MaxBoundary, sceneCreator.ParamsProvider.Camera, rayDirection, ref t)))
                             {
                                 priorityQueue.Enqueue(child,t);
                             }
@@ -97,7 +77,7 @@ namespace Raytracer
                     else
                     {
                         var normal = nearestTriangle.GetNormal();
-                        var lightRay = Vector3.Normalize(light - nearestTriangleIntersectionPoint);
+                        var lightRay = Vector3.Normalize(sceneCreator.ParamsProvider.LightPosition - nearestTriangleIntersectionPoint);
                         var dotProduct = Vector3.Dot(lightRay, normal);
                         var facingRatio = Math.Max(0, dotProduct);
                         

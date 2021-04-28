@@ -6,16 +6,16 @@ namespace Raytracer.Optimisation
 {
     public class OctreeNode: INode
     {
-        public List<OctreeNode> ChildNodes;
+        public List<INode> ChildNodes { get; set; }
         //public OctreeNode Parent;
-        public List<Triangle> Faces;
+        public List<Triangle> Faces { get; set; }
+        public Vector3 MinBoundary { get; }
+        public Vector3 MaxBoundary { get; }
 
-        public Vector3 Min;
-        public Vector3 Max;
         public OctreeNode(Vector3 pMin, Vector3 pMax, List<Triangle> faces, OctreeNode parent)
         {
-            Min = pMin;
-            Max = pMax;
+            MinBoundary = pMin;
+            MaxBoundary = pMax;
             Faces = new List<Triangle>(faces);
 
            // Parent = parent;
@@ -27,62 +27,62 @@ namespace Raytracer.Optimisation
             if (Faces.Count < 10)
                 return;
             
-            ChildNodes = new List<OctreeNode>(8);
+            ChildNodes = new List<INode>(8);
             var centroid = GetCentroid();
 
             //bottomFrontLeft
-            var boxMin = new Vector3(Min.X, Min.Y, centroid.Z);
-            var boxMax = new Vector3(centroid.X, centroid.Y, Max.Z);
-            var faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            var boxMin = new Vector3(MinBoundary.X, MinBoundary.Y, centroid.Z);
+            var boxMax = new Vector3(centroid.X, centroid.Y, MaxBoundary.Z);
+            var faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces, this));
             ChildNodes[0].DivideIntoBoxes();
             //bottomFrontRight
-            boxMin = new Vector3(centroid.X, Min.Y, centroid.Z);
-            boxMax = new Vector3(Max.X, centroid.Y, Max.Z);
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            boxMin = new Vector3(centroid.X, MinBoundary.Y, centroid.Z);
+            boxMax = new Vector3(MaxBoundary.X, centroid.Y, MaxBoundary.Z);
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[1].DivideIntoBoxes();
             //topFrontLeft
-            boxMin = new Vector3(Min.X, centroid.Y, centroid.Z);
-            boxMax = new Vector3(centroid.X, Max.Y, Max.Z);
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            boxMin = new Vector3(MinBoundary.X, centroid.Y, centroid.Z);
+            boxMax = new Vector3(centroid.X, MaxBoundary.Y, MaxBoundary.Z);
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[2].DivideIntoBoxes();
             //topFrontRight
             boxMin = centroid;
-            boxMax = Max;
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            boxMax = MaxBoundary;
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[3].DivideIntoBoxes();
             //bottomBackLeft
-            boxMin = Min;
+            boxMin = MinBoundary;
             boxMax = centroid;
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[4].DivideIntoBoxes();
             //bottomBackRight
-            boxMin = new Vector3(centroid.X, Min.Y, Min.Z);
-            boxMax = new Vector3(Max.X, centroid.Y, centroid.Z);
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            boxMin = new Vector3(centroid.X, MinBoundary.Y, MinBoundary.Z);
+            boxMax = new Vector3(MaxBoundary.X, centroid.Y, centroid.Z);
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[5].DivideIntoBoxes();
             //topBackLeft
-            boxMin = new Vector3(Min.X, centroid.Y, Min.Z);
-            boxMax = new Vector3(centroid.X, Max.Y, centroid.Z);
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            boxMin = new Vector3(MinBoundary.X, centroid.Y, MinBoundary.Z);
+            boxMax = new Vector3(centroid.X, MaxBoundary.Y, centroid.Z);
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[6].DivideIntoBoxes();
             //topBackRight
-            boxMin = new Vector3(centroid.X, centroid.Y, Min.Z);
-            boxMax = new Vector3(Max.X, Max.Y, centroid.Z);
-            faces = FindTrianglesInBox(boxMin, boxMax, ref Faces);
+            boxMin = new Vector3(centroid.X, centroid.Y, MinBoundary.Z);
+            boxMax = new Vector3(MaxBoundary.X, MaxBoundary.Y, centroid.Z);
+            faces = FindTrianglesInBox(boxMin, boxMax);
             ChildNodes.Add(new OctreeNode(boxMin, boxMax, faces,this));
             ChildNodes[7].DivideIntoBoxes();
         }
 
         private Vector3 GetCentroid()
         {
-            return new Vector3((Max.X + Min.X) / 2, (Max.Y + Min.Y) / 2, (Max.Z + Min.Z) / 2);
+            return new Vector3((MaxBoundary.X + MinBoundary.X) / 2, (MaxBoundary.Y + MinBoundary.Y) / 2, (MaxBoundary.Z + MinBoundary.Z) / 2);
         }
 
         public bool IsLeaf()
@@ -90,11 +90,11 @@ namespace Raytracer.Optimisation
             return ChildNodes == null;
         }
 
-        public List<Triangle> FindTrianglesInBox(Vector3 pMin, Vector3 pMax, ref List<Triangle> faces)
+        public List<Triangle> FindTrianglesInBox(Vector3 pMin, Vector3 pMax)
         {
             var faceInBox = new List<Triangle>();
             var faceNotInBox = new List<Triangle>();
-            foreach (var face in faces)
+            foreach (var face in Faces)
             {
                 if (face.IsTriangleInBox(pMin, pMax))
                 {
@@ -106,8 +106,8 @@ namespace Raytracer.Optimisation
                 }
             }
 
-            faces.Clear();
-            faces.AddRange(faceNotInBox);
+            Faces.Clear();
+            Faces.AddRange(faceNotInBox);
             return faceInBox;
         }
 

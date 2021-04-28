@@ -1,6 +1,8 @@
 ﻿using System.Numerics;
+using ConverterBase.GeomHelper;
 using ObjLoader.Loader.Data.VertexData;
 using ObjLoader.Loader.Loaders;
+using Raytracer.ObjectProvider;
 
 namespace Raytracer.Transformation
 {
@@ -8,19 +10,19 @@ namespace Raytracer.Transformation
     {
         public Matrix4x4 TransformationMatrix { get; set; }
         
-        public void RotateX(float angle = 90, Vector3 center = default)
+        public void RotateX(float angle)
         {
-            TransformationMatrix *= Matrix4x4.CreateRotationX(angle, center);
+            TransformationMatrix *= Matrix4x4.CreateRotationX(angle);
         }
 
-        public void RotateY(float angle = 90, Vector3 center = default)
+        public void RotateY(float angle)
         {
-            TransformationMatrix *= Matrix4x4.CreateRotationY(angle, center);
+            TransformationMatrix *= Matrix4x4.CreateRotationY(angle);
         }
 
-        public void RotateZ(float angle = 90, Vector3 center = default)
+        public void RotateZ(float angle)
         {
-            TransformationMatrix *= Matrix4x4.CreateRotationZ(angle, center);
+            TransformationMatrix *= Matrix4x4.CreateRotationZ(angle);
         }
 
         public void Translate(Vector3 translationVector)
@@ -33,8 +35,7 @@ namespace Raytracer.Transformation
             TransformationMatrix *= Matrix4x4.CreateScale(scale);
         }
 
-        //todo change object structure 
-        public void Transform(ref LoadResult object3D)
+        public void Transform(ref ObjectModel object3D)
         {
             for (var i = 0; i < object3D.Vertices.Count; i++)
             {
@@ -43,7 +44,7 @@ namespace Raytracer.Transformation
                 var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
                 var res = MultiplyBy(v4);
             
-                object3D.Vertices[i] = new Vertex(res.X, res.Y, res.Z);
+                object3D.Vertices[i] = new Vector3(res.X, res.Y, res.Z);
             }
         }
         
