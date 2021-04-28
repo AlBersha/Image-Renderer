@@ -15,8 +15,4 @@
       <ProjectReference Include="..\ConverterBase\ConverterBase.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Math" />
-    </ItemGroup>
-
 </Project>

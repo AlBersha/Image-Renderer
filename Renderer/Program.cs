@@ -1,27 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Numerics;
-using ConverterBase.GeomHelper;
-using ObjLoader.Loader.Data.VertexData;
-using Raytracer;
-using ObjLoader.Loader.Loaders;
+﻿using Microsoft.Extensions.Hosting;
+using Raytracer.ObjectProvider;
 using Raytracer.Optimisation;
+using Raytracer.Scene;
+using Raytracer.Transformation;
 
 namespace Renderer
 {
-    using System.Collections.Generic;
-    using BMPReader;
-    using ConverterBase;
-    using ConverterBase.Readers;
-    using ConverterBase.Writers;
-    using GifFormat;
-    using PNGFormat;
-    using PPMFormat;
-
     class Program
     {
         static void Main(string[] args)
         {
+            CreateHostBuilder(args).Build().RunAsync();
+
+
             // ICommandProcessor commandProcessor = new CommandConsoleProcessor();
             // commandProcessor.ProcessCommand(args);
             //
@@ -91,65 +82,75 @@ namespace Renderer
             // converter.Convert(commandProcessor.SourceFile, commandProcessor.OutputFile);
             // Console.WriteLine("Image converted");
 
-            var width = 1000;
-            var height = 800;
+            // var width = 1000;
+            // var height = 800;
+            //
+            // var path = "C:\\Users\\obers\\KPI\\graphics\\cow.obj";
+            // string outputPath = "C:\\Users\\obers\\KPI\\graphics\\cow.ppm";
+            //
+            // // var object3D = ObjReader.ReadObjFile(path);
+            //
+            // var translationM = new Matrix4x4 
+            // (
+            //     1, 0, 0, 0,
+            //     0, 1, 0, 0,
+            //     0, 0, 1, 0,
+            //     0, 0, 0, 1
+            // );
+            // var scaleM = new Matrix4x4 
+            // (
+            //     2f, 0, 0, 0,
+            //     0, 2f, 0, 0,
+            //     0, 0, 2f, 0,
+            //     0, 0, 0, 1
+            // );
+            // var rotationX = new Matrix4x4 
+            // (
+            //     1, 0, 0, 0,
+            //     0, 0, 1, 0,
+            //     0, -1, 0, 0,
+            //     0, 0, 0, 1
+            // );
+            // var rotationY = new Matrix4x4 
+            // (
+            //     -1, 0, 0, 0,
+            //     0, 1, 0, 0,
+            //     0, 0, -1, 0,
+            //     0, 0, 0, 1
+            // );
+            // var rotationZ = new Matrix4x4 
+            // (
+            //     1, 0, 0, 0,
+            //     0, 1, 0, 0,
+            //     0, 0, 1, 0,
+            //     0, 0, 0, 1
+            // );
             
-            var path = "C:\\Users\\obers\\KPI\\graphics\\cow.obj";
-            string outputPath = "C:\\Users\\obers\\KPI\\graphics\\cow.ppm";
+            // Extension.Transform(ref object3D,rotationZ, rotationY,rotationX, scaleM,translationM);
+            // var min = new Vector3();
+            // var max = new Vector3();
+            //
+            // Extension.BoundingBoxCoordinates(object3D, ref min, ref max);
+            // var faces = Extension.GetTrianglesList(object3D);
+            //
+            // var octree = new Octree();
+            // octree.CreateTree(min, max, faces);
+            // var tracer = new Tracer();
+            // var pixelMatrix = tracer.Trace(width,height, octree);
             
-            var object3D = ObjReader.ReadObjFile(path);
-        
-            var translationM = new Matrix4x4 
-            (
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1
-            );
-            var scaleM = new Matrix4x4 
-            (
-                2f, 0, 0, 0,
-                0, 2f, 0, 0,
-                0, 0, 2f, 0,
-                0, 0, 0, 1
-            );
-            var rotationX = new Matrix4x4 
-            (
-                1, 0, 0, 0,
-                0, 0, 1, 0,
-                0, -1, 0, 0,
-                0, 0, 0, 1
-            );
-            var rotationY = new Matrix4x4 
-            (
-                -1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, -1, 0,
-                0, 0, 0, 1
-            );
-            var rotationZ = new Matrix4x4 
-            (
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1
-            );
-            
-            Extension.Transform(ref object3D,rotationZ, rotationY,rotationX, scaleM,translationM);
-            var min = new Vector3();
-            var max = new Vector3();
-
-            Extension.BoundingBoxCoordinates(object3D, ref min, ref max);
-            var faces = Extension.GetTrianglesList(object3D);
-
-            var octree = new Octree();
-            octree.CreateTree(min, max, faces);
-            var tracer = new Tracer();
-            var pixelMatrix = tracer.Trace(width,height, octree);
-            
-            IImage image = new PPM(width, height, pixelMatrix);
-            var ppmWriter = new PPMWriter();
-            ppmWriter.WriteImage(image, outputPath);
+            // IImage image = new PPM(width, height, pixelMatrix);
+            // var ppmWriter = new PPMWriter();
+            // ppmWriter.WriteImage(image, outputPath);
         }
+
+        static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((context, services) =>
+                {
+                    services.RegisterTree();
+                    services.RegisterScene();
+                    services.RegisterObjectProvider();
+                    services.RegisterTransformationFunctionality();
+                });
     }
 }
