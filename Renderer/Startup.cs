@@ -31,23 +31,22 @@ namespace Renderer
             // 1. console management
             // such params would be read from console
             var pathToFile = "C:\\Users\\obers\\KPI\\graphics\\cow.obj";
-            var outputPath = "C:\\Users\\obers\\KPI\\graphics\\cow.ppm";
+            var outputPath = "C:\\Users\\obers\\KPI\\graphics\\out.ppm";
             
             // 2. get object
             var object3D = _object.ParseObjectToObjectModel(pathToFile); // todo separate path to file 
             
             // 3. transform object
-            // Transformation.RotateX();
-            // Transformation.RotateY();
-            // Transformation.RotateZ();
-            // Transformation.Scale();
-            // Transformation.Transform(object3D);
             
-            
-            // _transformation.Transform(ref object3D);
-            
+            Transformation.RotateZ();
+            Transformation.RotateY();
+            Transformation.RotateX();
+            Transformation.Scale();
+            Transformation.Translate();
+            Transformation.Transform(ref object3D);
+
             // 4. build tree
-            _treeProvider.CreateTree(Transformation.Transform(object3D));
+            _treeProvider.CreateTree(object3D);
             
             // 5. create screen
             _sceneCreator.CreateScreen();
@@ -55,6 +54,7 @@ namespace Renderer
             // 6. execute tracing
             var pixels = _tracer.Trace(_sceneCreator, _treeProvider);
 
+            // 7. write to file 
             var image = new PPM(500, 500, pixels);
             var ppmWriter = new PPMWriter();
             ppmWriter.WriteImage(image, outputPath);

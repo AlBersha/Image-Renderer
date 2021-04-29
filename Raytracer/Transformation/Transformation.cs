@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using ConverterBase.GeomHelper;
 using Raytracer.ObjectProvider;
 
 namespace Raytracer.Transformation
@@ -68,7 +69,7 @@ namespace Raytracer.Transformation
             TransformationMatrix *= _scaleM;
         }
 
-        public static ObjectModel Transform(ObjectModel object3D)
+        public static void Transform(ref ObjectModel object3D)
         {
             for (var i = 0; i < object3D.Vertices.Count; i++)
             {
@@ -80,7 +81,18 @@ namespace Raytracer.Transformation
                 object3D.Vertices[i] = new Vector3(res.X, res.Y, res.Z);
             }
 
-            return object3D;
+            for (var i = 0; i < object3D.Faces.Count; i++)
+            {
+                var f3 = new Triangle(object3D.Faces[i].A, object3D.Faces[i].B, object3D.Faces[i].C);
+                
+                var v4A = new Vector4(f3.A.X, f3.A.Y, f3.A.Z, 1);
+                var v4B = new Vector4(f3.B.X, f3.B.Y, f3.B.Z, 1);
+                var v4C = new Vector4(f3.C.X, f3.C.Y, f3.C.Z, 1);
+
+                object3D.Faces[i] = new Triangle(new Vector3(MultiplyBy(v4A).X, MultiplyBy(v4A).Y, MultiplyBy(v4A).Z),
+                    new Vector3(MultiplyBy(v4B).X, MultiplyBy(v4B).Y, MultiplyBy(v4B).Z),
+                    new Vector3(MultiplyBy(v4C).X, MultiplyBy(v4C).Y, MultiplyBy(v4C).Z));
+            }
         }
         
         private static Vector4 MultiplyBy(Vector4 v)
