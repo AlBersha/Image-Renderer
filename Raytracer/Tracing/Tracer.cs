@@ -75,7 +75,7 @@ namespace Raytracer.Tracing
                     
                     if (nearestTriangle is null)
                     {
-                        image[i].Add(new Pixel(20, 20, 20));
+                        image[i].Add(new Pixel(232, 234, 246));
                     }
                     else
                     {
@@ -85,9 +85,8 @@ namespace Raytracer.Tracing
                         var facingRatio = Math.Max(0, dotProduct);
                         
                         //var facingRatio = 0.18f / Math.PI * 30 * 0.5 * Math.Max(0f, dotProduct); 
-                        
-                        image[i].Add(new Pixel((byte) (255 * facingRatio), (byte) (69 * facingRatio),
-                            (byte) (0 * facingRatio)));
+                        image[i].Add(new Pixel((byte) (159 * facingRatio), (byte) (168 * facingRatio),
+                            (byte) (218 * facingRatio)));
                     }
                 }
             }

@@ -1,8 +1,12 @@
 ﻿
 using System;
-using System.Numerics;
+using BMPReader;
 using ConsoleProcessor;
 using ConverterBase;
+using ConverterBase.Readers;
+using ConverterBase.Writers;
+using GifFormat;
+using PNGFormat;
 using PPMFormat;
 using Raytracer.ObjectProvider;
 using Raytracer.Optimisation;
@@ -28,21 +32,66 @@ namespace Renderer
                 objectFromFileProvider,
                 treeProvider, tracer);
 
-        // todo the class supposed to be all required config setter
-
         public void ConfigureExecutor(string[] args)
         {
-            // 1. console management
-            // such params would be read from console
-            // var pathToFile = "C:\\Users\\obers\\KPI\\graphics\\cow.obj";
-            // var outputPath = "C:\\Users\\obers\\KPI\\graphics\\out.ppm";
-
             _commandProcessor.ProcessCommand(args);
+
+            if (_commandProcessor.SourceFormat != "obj")
+            {
+                ExecuteConversion();
+            }
+            else
+            {
+                ExecuteRaytracing();
+            }
+        }
+
+        private void ExecuteConversion()
+        {
             
-            // 2. get object
-            var object3D = _object.ParseObjectToObjectModel(_commandProcessor.SourceFile); // todo separate path to file 
+            IImageReader imageReader = null;
+            IImageWriter imageWriter = null;
             
-            // 3. transform object
+            switch (_commandProcessor.SourceFormat)
+            {
+                case "ppm":
+                    imageReader = new PPMReader();
+                    break;
+                case "bmp":
+                    imageReader = new BMPReader.BMPReader();
+                    break;
+                case "gif":
+                    imageReader = new GifReader();
+                    break;
+                case "png":
+                    imageReader = new PNGReader();
+                    break;
+                default:
+                    Console.WriteLine($"You are trying to open {_commandProcessor.SourceFormat} file, but it is not implemented yet.");
+                    break;
+            }
+            
+            switch (_commandProcessor.GoalFormat)
+            {
+                case "ppm":
+                    imageWriter = new PPMWriter();
+                    break;
+                case "bmp":
+                    imageWriter = new BMPWriter();
+                    break;
+                default:
+                    Console.WriteLine($"You are trying to write {_commandProcessor.GoalFormat} file, but it is not implemented yet.");
+                    break;
+            }
+            
+            Converter converter = new Converter(imageReader, imageWriter);
+            converter.Convert(_commandProcessor.SourceFile, _commandProcessor.OutputFile);
+            Console.WriteLine("Image converted");
+        }
+
+        private void ExecuteRaytracing()
+        {
+            var object3D = _object.ParseObjectToObjectModel(_commandProcessor.SourceFile); 
             
             // Transformation.RotateZ();
             Transformation.RotateX();
@@ -51,16 +100,12 @@ namespace Renderer
             Transformation.Translate();
             Transformation.Transform(ref object3D);
 
-            // 4. build tree
             _treeProvider.CreateTree(object3D);
             
-            // 5. create screen
             _sceneCreator.CreateScreen();
 
-            // 6. execute tracing
             var pixels = _tracer.Trace(_sceneCreator, _treeProvider);
 
-            // 7. write to file 
             var image = new PPM((int)_sceneCreator.ParamsProvider.ImageWidth, (int)_sceneCreator.ParamsProvider.ImageHeight, pixels);
             var ppmWriter = new PPMWriter();
             ppmWriter.WriteImage(image, _commandProcessor.OutputFile);

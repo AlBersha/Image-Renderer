@@ -37,6 +37,7 @@ namespace ConsoleProcessor
                 else if (args[i].StartsWith("--output="))
                 {
                     OutputFile = args[i][(args[i].IndexOf('=') + 1)..];
+                    OutputFile += "." + GoalFormat;
                 }
                 else
                 {
@@ -51,11 +52,11 @@ namespace ConsoleProcessor
                 Environment.Exit(1);
             }
             
-            // if (GoalFormat == "")
-            // {
-            //     Console.WriteLine("Argument --goal-format is either entered incorrectly or is missing");
-            //     Environment.Exit(1);
-            // }
+            if (GoalFormat == "" && SourceFormat != "obj")
+            {
+                Console.WriteLine("Argument --goal-format is either entered incorrectly or is missing");
+                Environment.Exit(1);
+            }
             
             if (OutputFile == "")
             {
