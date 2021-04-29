@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ConsoleProcessor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Raytracer.ObjectProvider;
@@ -16,7 +17,7 @@ namespace Renderer
         {
             using var host = CreateHostBuilder(args).Build();
             
-            ExemplifyScoping(host.Services);
+            ExemplifyScoping(host.Services, args);
             
 
             // ICommandProcessor commandProcessor = new CommandConsoleProcessor();
@@ -155,6 +156,7 @@ namespace Renderer
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) =>
                 {
+                    services.RegisterCommandProcessor();
                     services.RegisterTree();
                     services.RegisterScene();
                     services.RegisterObjectProvider();
@@ -162,13 +164,13 @@ namespace Renderer
                     services.AddTransient<Startup>();
                 });
 
-        private static void ExemplifyScoping(IServiceProvider services)
+        private static void ExemplifyScoping(IServiceProvider services, string[] args)
         {
             using var serviceScope = services.CreateScope();
             var provider = serviceScope.ServiceProvider;
 
             var startup = provider.GetService<Startup>();
-            startup?.ConfigureExecutor();
+            startup?.ConfigureExecutor(args);
         }
     }
 }

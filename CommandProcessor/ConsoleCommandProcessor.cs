@@ -1,17 +1,17 @@
-namespace Renderer
-{
-    using System;
-    using GifFormat;
+using System;
 
-    public class CommandConsoleProcessor: ICommandProcessor
+namespace ConsoleProcessor
+{
+    public class ConsoleCommandProcessor: ICommandProcessor
     {
         public string SourceFile { get; set; }
-        public string SourceFileName { get; set; }
+        private string SourceFileName { get; set; }
         public string SourceFormat { get; set; }
         public string GoalFormat { get; set; }
         public string OutputFile { get; set; }
 
-        public CommandConsoleProcessor()
+        
+        public ConsoleCommandProcessor()
         {
             SourceFile = "";
             GoalFormat = "";
@@ -20,23 +20,23 @@ namespace Renderer
 
         public bool ProcessCommand(string[] args)
         {
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 args[i] = args[i].ToLower();
                 
                 if (args[i].StartsWith("--source="))
                 {
-                    SourceFile = args[i].Substring(args[i].IndexOf('=') + 1);
-                    SourceFormat = SourceFile.Substring(SourceFile.LastIndexOf('.')+1);
-                    SourceFileName = SourceFile.Substring(0, SourceFile.Length - SourceFormat.Length);
+                    SourceFile = args[i][(args[i].IndexOf('=') + 1)..];
+                    SourceFormat = SourceFile[(SourceFile.LastIndexOf('.')+1)..];
+                    SourceFileName = SourceFile[..^SourceFormat.Length];
                 }
                 else if (args[i].StartsWith("--goal-format="))
                 {
-                    GoalFormat = args[i].Substring(args[i].IndexOf('=') + 1).ToLower();
+                    GoalFormat = args[i][(args[i].IndexOf('=') + 1)..].ToLower();
                 }
                 else if (args[i].StartsWith("--output="))
                 {
-                    OutputFile = args[i].Substring(args[i].IndexOf('=') + 1);
+                    OutputFile = args[i][(args[i].IndexOf('=') + 1)..];
                 }
                 else
                 {
@@ -51,11 +51,11 @@ namespace Renderer
                 Environment.Exit(1);
             }
             
-            if (GoalFormat == "")
-            {
-                Console.WriteLine("Argument --goal-format is either entered incorrectly or is missing");
-                Environment.Exit(1);
-            }
+            // if (GoalFormat == "")
+            // {
+            //     Console.WriteLine("Argument --goal-format is either entered incorrectly or is missing");
+            //     Environment.Exit(1);
+            // }
             
             if (OutputFile == "")
             {
