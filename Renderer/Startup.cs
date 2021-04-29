@@ -44,9 +44,9 @@ namespace Renderer
             
             // 3. transform object
             
-            Transformation.RotateZ();
+            // Transformation.RotateZ();
             Transformation.RotateX();
-            Transformation.RotateY();
+            // Transformation.RotateY();
             Transformation.Scale();
             Transformation.Translate();
             Transformation.Transform(ref object3D);

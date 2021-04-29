@@ -25,8 +25,8 @@ namespace Raytracer.Transformation
         private static readonly Matrix4x4 _rotationX = new Matrix4x4 
         (
             1, 0, 0, 0,
-            0, 0, 1, 0,
-            0, -1, 0, 0,
+            0, 0, -1, 0,
+            0, 1, 0, 0,
             0, 0, 0, 1
         );
         private static readonly Matrix4x4 _rotationY = new Matrix4x4 
