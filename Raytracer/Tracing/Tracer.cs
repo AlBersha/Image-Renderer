@@ -14,6 +14,9 @@ namespace Raytracer.Tracing
     {   
         public List<List<Pixel>> Trace(ISceneCreator sceneCreator, ITreeProvider octree)
         {
+            var camera = sceneCreator.ParamsProvider.Camera;
+            var screenZ = sceneCreator.ParamsProvider.ScreenZ;
+            
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var num = 0; 
 
@@ -26,8 +29,8 @@ namespace Raytracer.Tracing
                 {
                     var x = sceneCreator.SetYScreenCoordinate(j);
                     
-                    var pixelCenterPoint = new Vector3(x, y, sceneCreator.ParamsProvider.ScreenZ);
-                    var rayDirection = pixelCenterPoint - sceneCreator.ParamsProvider.Camera;
+                    var pixelCenterPoint = new Vector3(x, y, screenZ);
+                    var rayDirection = pixelCenterPoint - camera;
                     rayDirection = Vector3.Normalize(rayDirection);
                   
                     float t = 0;

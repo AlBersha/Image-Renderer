@@ -9,8 +9,7 @@ namespace Raytracer.ObjectProvider
 {
     public class FromObjFIleObjectProvider: IObjectFromFileProvider
     {
-        public ObjectModel ObjectModel { get; set; } = new ObjectModel();
-        private LoadResult object3D = new LoadResult();
+        private ObjectModel ObjectModel { get; } = new ObjectModel();
         
         public ObjectModel ParseObjectToObjectModel(string pathToFile)
         {
@@ -18,54 +17,54 @@ namespace Raytracer.ObjectProvider
             var objLoader = objLoaderFactory.Create();
             
             var fileStream = File.OpenRead(pathToFile);
-            object3D = objLoader.Load(fileStream);
+            var object3D = objLoader.Load(fileStream);
 
-            LoadResultToObjectModel();
+            LoadResultToObjectModel(object3D);
             return ObjectModel;
         }
 
-        private void LoadResultToObjectModel()
+        private void LoadResultToObjectModel(LoadResult loadResult)
         {
-            GetVertices();
-            GetNormals();
-            GetFaces();
-            GetTextures();
+            GetVertices(loadResult);
+            GetNormals(loadResult);
+            GetFaces(loadResult);
+            GetTextures(loadResult);
         }
 
-        private void GetVertices()
+        private void GetVertices(LoadResult loadResult)
         {
-            foreach (var vertex in object3D.Vertices)
+            foreach (var vertex in loadResult.Vertices)
             {
                 ObjectModel.Vertices.Add(new Vector3(vertex.X, vertex.Y, vertex.Z));
             }
         }
 
-        private void GetNormals()
+        private void GetNormals(LoadResult loadResult)
         {
-            foreach (var normal in object3D.Normals)
+            foreach (var normal in loadResult.Normals)
             {
                 ObjectModel.VerticesNormals.Add(new Vector3(normal.X, normal.Y, normal.Z));
             }
         }
         
-        private void GetFaces()
+        private void GetFaces(LoadResult loadResult)
         {
             var faces = new List<Triangle>();
-            foreach (var face in object3D.Groups[0].Faces)
+            foreach (var face in loadResult.Groups[0].Faces)
             {
-                var X = object3D.Vertices[face[0].VertexIndex - 1].X;
-                var Y = object3D.Vertices[face[0].VertexIndex - 1].Y;
-                var Z = object3D.Vertices[face[0].VertexIndex - 1].Z;
+                var X = loadResult.Vertices[face[0].VertexIndex - 1].X;
+                var Y = loadResult.Vertices[face[0].VertexIndex - 1].Y;
+                var Z = loadResult.Vertices[face[0].VertexIndex - 1].Z;
                 var A = new Vector3(X, Y, Z);
 
-                X = object3D.Vertices[face[1].VertexIndex - 1].X;
-                Y = object3D.Vertices[face[1].VertexIndex - 1].Y;
-                Z = object3D.Vertices[face[1].VertexIndex - 1].Z;
+                X = loadResult.Vertices[face[1].VertexIndex - 1].X;
+                Y = loadResult.Vertices[face[1].VertexIndex - 1].Y;
+                Z = loadResult.Vertices[face[1].VertexIndex - 1].Z;
                 var B = new Vector3(X, Y, Z);
 
-                X = object3D.Vertices[face[2].VertexIndex - 1].X;
-                Y = object3D.Vertices[face[2].VertexIndex - 1].Y;
-                Z = object3D.Vertices[face[2].VertexIndex - 1].Z;
+                X = loadResult.Vertices[face[2].VertexIndex - 1].X;
+                Y = loadResult.Vertices[face[2].VertexIndex - 1].Y;
+                Z = loadResult.Vertices[face[2].VertexIndex - 1].Z;
                 var C = new Vector3(X, Y, Z);
 
                 faces.Add(new Triangle(A, B, C));
@@ -74,9 +73,9 @@ namespace Raytracer.ObjectProvider
             ObjectModel.Faces = faces;
         }
 
-        private void GetTextures()
+        private void GetTextures(LoadResult loadResult)
         {
-            foreach (var texture in object3D.Textures)
+            foreach (var texture in loadResult.Textures)
             {
                 ObjectModel.Textures.Add(texture);
             }

@@ -8,10 +8,7 @@ namespace Raytracer.Scene
         public IParamsProvider ParamsProvider { get; }
 
         public SceneCreator(IParamsProvider paramsProvider, IScreenProvider screen)
-        {
-            ParamsProvider = paramsProvider;
-            _screen = screen;
-        }
+            => (_screen, ParamsProvider) = (screen, paramsProvider);
 
         public void CreateScreen()
         {

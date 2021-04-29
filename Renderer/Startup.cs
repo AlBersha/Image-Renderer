@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Numerics;
+using ConverterBase;
+using PPMFormat;
 using Raytracer.ObjectProvider;
 using Raytracer.Optimisation;
 using Raytracer.Scene;
@@ -12,41 +14,40 @@ namespace Renderer
 {
     public class Startup
     {
-        private ISceneCreator _sceneCreator;
-        private IObjectFromFileProvider _object;
-        private ITransformation _transformation;
-        private ITreeProvider _treeProvider;
-        private ITracer _tracer;
+        private readonly ISceneCreator _sceneCreator;
+        private readonly IObjectFromFileProvider _object;
+        private readonly ITreeProvider _treeProvider;
+        private readonly ITracer _tracer;
 
-        public Startup(ISceneCreator sceneCreator, IObjectFromFileProvider objectFromFileProvider, ITransformation transformation, ITreeProvider treeProvider, ITracer tracer)
-        {
-            _sceneCreator = sceneCreator;
-            _object = objectFromFileProvider;
-            _transformation = transformation;
-            _treeProvider = treeProvider;
-            _tracer = tracer;
-        }
-        
+        public Startup(ISceneCreator sceneCreator, IObjectFromFileProvider objectFromFileProvider,
+            ITreeProvider treeProvider, ITracer tracer) =>
+            (_sceneCreator, _object, _treeProvider, _tracer) = (sceneCreator, objectFromFileProvider,
+                treeProvider, tracer);
+
         // todo the class supposed to be all required config setter
 
         public void ConfigureExecutor()
         {
             // 1. console management
-            
+            // such params would be read from console
+            var pathToFile = "C:\\Users\\obers\\KPI\\graphics\\cow.obj";
+            var outputPath = "C:\\Users\\obers\\KPI\\graphics\\cow.ppm";
             
             // 2. get object
-            var object3D = _object.ParseObjectToObjectModel("path to file"); // todo separate path to file 
+            var object3D = _object.ParseObjectToObjectModel(pathToFile); // todo separate path to file 
             
             // 3. transform object
-            _transformation.RotateZ();
-            _transformation.RotateY();
-            _transformation.RotateX();
-            _transformation.Scale();
-
-            _transformation.Transform(ref object3D);
+            // Transformation.RotateX();
+            // Transformation.RotateY();
+            // Transformation.RotateZ();
+            // Transformation.Scale();
+            // Transformation.Transform(object3D);
+            
+            
+            // _transformation.Transform(ref object3D);
             
             // 4. build tree
-            _treeProvider.CreateTree(object3D);
+            _treeProvider.CreateTree(Transformation.Transform(object3D));
             
             // 5. create screen
             _sceneCreator.CreateScreen();
@@ -54,6 +55,9 @@ namespace Renderer
             // 6. execute tracing
             var pixels = _tracer.Trace(_sceneCreator, _treeProvider);
 
+            var image = new PPM(500, 500, pixels);
+            var ppmWriter = new PPMWriter();
+            ppmWriter.WriteImage(image, outputPath);
         }
     }
 }

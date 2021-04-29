@@ -1,41 +1,74 @@
 ﻿using System.Numerics;
-using ConverterBase.GeomHelper;
-using ObjLoader.Loader.Data.VertexData;
-using ObjLoader.Loader.Loaders;
 using Raytracer.ObjectProvider;
 
 namespace Raytracer.Transformation
 {
-    public class Transformation: ITransformation
+    public static class Transformation
     {
-        public Matrix4x4 TransformationMatrix { get; set; }
+        private static Matrix4x4 TransformationMatrix { get; set; } = Matrix4x4.Identity;
         
-        public void RotateX(float angle)
+        private static readonly Matrix4x4 _translationM = new Matrix4x4 
+        (
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+        private static readonly Matrix4x4 _scaleM = new Matrix4x4 
+        (
+            2f, 0, 0, 0,
+            0, 2f, 0, 0,
+            0, 0, 2f, 0,
+            0, 0, 0, 1
+        );
+        private static readonly Matrix4x4 _rotationX = new Matrix4x4 
+        (
+            1, 0, 0, 0,
+            0, 0, 1, 0,
+            0, -1, 0, 0,
+            0, 0, 0, 1
+        );
+        private static readonly Matrix4x4 _rotationY = new Matrix4x4 
+        (
+            -1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, -1, 0,
+            0, 0, 0, 1
+        );
+        private static readonly Matrix4x4 _rotationZ = new Matrix4x4 
+        (
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+        
+        public static void RotateX()
         {
-            TransformationMatrix *= Matrix4x4.CreateRotationX(angle);
+            TransformationMatrix *= _rotationX;
         }
 
-        public void RotateY(float angle)
+        public static void RotateY()
         {
-            TransformationMatrix *= Matrix4x4.CreateRotationY(angle);
+            TransformationMatrix *= _rotationY;
         }
 
-        public void RotateZ(float angle)
+        public static void RotateZ()
         {
-            TransformationMatrix *= Matrix4x4.CreateRotationZ(angle);
+            TransformationMatrix *= _rotationZ;
         }
 
-        public void Translate(Vector3 translationVector)
+        public static void Translate()
         {
-            TransformationMatrix *= Matrix4x4.CreateTranslation(translationVector);
+            TransformationMatrix *= _translationM;
         }
 
-        public void Scale(float scale)
+        public static void Scale()
         {
-            TransformationMatrix *= Matrix4x4.CreateScale(scale);
+            TransformationMatrix *= _scaleM;
         }
 
-        public void Transform(ref ObjectModel object3D)
+        public static ObjectModel Transform(ObjectModel object3D)
         {
             for (var i = 0; i < object3D.Vertices.Count; i++)
             {
@@ -46,9 +79,11 @@ namespace Raytracer.Transformation
             
                 object3D.Vertices[i] = new Vector3(res.X, res.Y, res.Z);
             }
+
+            return object3D;
         }
         
-        private Vector4 MultiplyBy(Vector4 v)
+        private static Vector4 MultiplyBy(Vector4 v)
         {
             return new Vector4(
                 TransformationMatrix.M11 * v.X + TransformationMatrix.M12 * v.Y + TransformationMatrix.M13 * v.Z + TransformationMatrix.M14 * v.W,

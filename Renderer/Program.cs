@@ -1,17 +1,23 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Raytracer.ObjectProvider;
 using Raytracer.Optimisation;
 using Raytracer.Scene;
+using Raytracer.Tracing;
 using Raytracer.Transformation;
 
 namespace Renderer
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().RunAsync();
-
+            using var host = CreateHostBuilder(args).Build();
+            
+            ExemplifyScoping(host.Services);
+            
 
             // ICommandProcessor commandProcessor = new CommandConsoleProcessor();
             // commandProcessor.ProcessCommand(args);
@@ -125,7 +131,7 @@ namespace Renderer
             //     0, 0, 1, 0,
             //     0, 0, 0, 1
             // );
-            
+
             // Extension.Transform(ref object3D,rotationZ, rotationY,rotationX, scaleM,translationM);
             // var min = new Vector3();
             // var max = new Vector3();
@@ -137,20 +143,32 @@ namespace Renderer
             // octree.CreateTree(min, max, faces);
             // var tracer = new Tracer();
             // var pixelMatrix = tracer.Trace(width,height, octree);
-            
+
             // IImage image = new PPM(width, height, pixelMatrix);
             // var ppmWriter = new PPMWriter();
             // ppmWriter.WriteImage(image, outputPath);
+            
+            return host.RunAsync();
         }
 
-        static IHostBuilder CreateHostBuilder(string[] args) =>
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) =>
                 {
                     services.RegisterTree();
                     services.RegisterScene();
                     services.RegisterObjectProvider();
-                    services.RegisterTransformationFunctionality();
+                    services.RegisterTracer();
+                    services.AddTransient<Startup>();
                 });
+
+        private static void ExemplifyScoping(IServiceProvider services)
+        {
+            using var serviceScope = services.CreateScope();
+            var provider = serviceScope.ServiceProvider;
+
+            var startup = provider.GetService<Startup>();
+            startup?.ConfigureExecutor();
+        }
     }
 }
