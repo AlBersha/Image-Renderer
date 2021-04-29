@@ -49,6 +49,7 @@ namespace BMPReader
     
     public class BMP: IImage
     {
+        private readonly int _wigth;
         public BMPHeader BmpHeader;
         public List<List<Pixel>> Data { get; set; }
 
@@ -56,6 +57,12 @@ namespace BMPReader
         {
             BmpHeader.bfReserved = new short[2];
             Data = new List<List<Pixel>>();
+        }
+
+        public BMP(int width, int height, List<List<Pixel>> imageData)
+        {
+            BmpHeader = new BMPHeader(width, height);
+            Data = imageData;
         }
     }
 }

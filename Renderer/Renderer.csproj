@@ -7,6 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BMPReader\BMPReader.csproj" />
+      <ProjectReference Include="..\CommandProcessor\CommandProcessor.csproj" />
       <ProjectReference Include="..\GifFormat\GifFormat.csproj" />
       <ProjectReference Include="..\PNGFormat\PNGFormat.csproj" />
       <ProjectReference Include="..\PPMFormat\PPMFormat.csproj" />
@@ -15,6 +16,8 @@
 
     <ItemGroup>
       <PackageReference Include="CjClutter.ObjLoader" Version="1.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.3.21201.4" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-preview.3.21201.4" />
     </ItemGroup>
 
 </Project>

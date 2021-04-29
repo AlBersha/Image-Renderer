@@ -1,4 +1,4 @@
-namespace Renderer
+namespace ConsoleProcessor
 {
     public interface ICommandProcessor
     {
