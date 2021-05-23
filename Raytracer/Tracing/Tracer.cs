@@ -43,18 +43,20 @@ namespace Raytracer.Tracing
                     Triangle nearestTriangle = null;
                     var nearestTriangleIntersectionPoint = new Vector3();
                     var minDistance = float.MaxValue;
+                    var barycentricIntersectionPoint = new Vector3();   
                     while (priorityQueue.Count != 0)
                     {
                         var flag = false;
                         var node = priorityQueue.Dequeue();
                         var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
                         var intersectedTriangle =
-                            FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint);
+                            FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint, ref barycentricIntersectionPoint);
                         var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
                         if (distanceBetweenCameraAndTriangle < minDistance)
                         {
                             minDistance = distanceBetweenCameraAndTriangle;
                             nearestTriangle = intersectedTriangle;
+                            nearestTriangleIntersectionPoint = intersectionPoint;
                             flag = true;
                         }
                         
@@ -79,7 +81,8 @@ namespace Raytracer.Tracing
                     }
                     else
                     {
-                        var normal = nearestTriangle.GetNormal();
+                        // var normal = nearestTriangle.GetNormal();
+                        var normal = nearestTriangle.GetBarycentricNormal(barycentricIntersectionPoint);
                         var lightRay = Vector3.Normalize(sceneCreator.ParamsProvider.LightPosition - nearestTriangleIntersectionPoint);
                         var dotProduct = Vector3.Dot(lightRay, normal);
                         var facingRatio = Math.Max(0, dotProduct);
@@ -99,14 +102,14 @@ namespace Raytracer.Tracing
             return image;
         }
         
-        private Triangle FindIntersectionInBox(List<Triangle> facesInBox, Vector3 rayDirection, Vector3 camera, ref int num, ref Vector3 intersectionPoint)
+        private Triangle FindIntersectionInBox(List<Triangle> facesInBox, Vector3 rayDirection, Vector3 camera, ref int num, ref Vector3 intersectionPoint, ref Vector3 outBarycentricIntersectionPoint)
         {
             Triangle nearestTriangle = null;
             var minDistance = float.MaxValue;
             foreach (var triangle in facesInBox)
             {
                 num++;
-                if (triangle.IsIntersectTriangle(camera, rayDirection, ref intersectionPoint))
+                if (triangle.IsIntersectTriangle(camera, rayDirection, ref intersectionPoint, ref outBarycentricIntersectionPoint))
                 {
                     var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, camera);
                     

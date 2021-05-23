@@ -80,19 +80,48 @@ namespace Raytracer.Transformation
             
                 object3D.Vertices[i] = new Vector3(res.X, res.Y, res.Z);
             }
+            
+            for (var i = 0; i < object3D.VerticesNormals.Count; i++)
+            {
+                var vn4 = new Vector4(object3D.VerticesNormals[i].X, object3D.VerticesNormals[i].Y,
+                    object3D.VerticesNormals[i].Z, 1);
+
+                var multiply = MultiplyBy(vn4);
+                object3D.VerticesNormals[i] = new Vector3(multiply.X, multiply.Y, multiply.Z);
+            }
 
             for (var i = 0; i < object3D.Faces.Count; i++)
             {
-                var f3 = new Triangle(object3D.Faces[i].A, object3D.Faces[i].B, object3D.Faces[i].C);
+                var f3 = new Triangle(object3D.Faces[i].A, object3D.Faces[i].B, object3D.Faces[i].C,
+                    object3D.Faces[i].An, object3D.Faces[i].Bn, object3D.Faces[i].Cn);
                 
                 var v4A = new Vector4(f3.A.X, f3.A.Y, f3.A.Z, 1);
                 var v4B = new Vector4(f3.B.X, f3.B.Y, f3.B.Z, 1);
                 var v4C = new Vector4(f3.C.X, f3.C.Y, f3.C.Z, 1);
+                
+                var v4An = new Vector4(f3.An.X, f3.An.Y, f3.An.Z, 1);
+                var v4Bn = new Vector4(f3.Bn.X, f3.Bn.Y, f3.Bn.Z, 1);
+                var v4Cn = new Vector4(f3.Cn.X, f3.Cn.Y, f3.Cn.Z, 1);
 
-                object3D.Faces[i] = new Triangle(new Vector3(MultiplyBy(v4A).X, MultiplyBy(v4A).Y, MultiplyBy(v4A).Z),
-                    new Vector3(MultiplyBy(v4B).X, MultiplyBy(v4B).Y, MultiplyBy(v4B).Z),
-                    new Vector3(MultiplyBy(v4C).X, MultiplyBy(v4C).Y, MultiplyBy(v4C).Z));
+
+                var multiplyA = MultiplyBy(v4A);
+                var multiplyB = MultiplyBy(v4B);
+                var multiplyC = MultiplyBy(v4C);
+                
+                var multiplyAn = MultiplyBy(v4An);
+                var multiplyBn = MultiplyBy(v4Bn);
+                var multiplyCn = MultiplyBy(v4Cn);
+                
+                
+                object3D.Faces[i] = new Triangle(new Vector3(multiplyA.X, multiplyA.Y, multiplyA.Z),
+                    new Vector3(multiplyB.X, multiplyB.Y, multiplyB.Z),
+                    new Vector3(multiplyC.X, multiplyC.Y, multiplyC.Z),
+                    new Vector3(multiplyAn.X, multiplyAn.Y, multiplyAn.Z),
+                    new Vector3(multiplyBn.X, multiplyBn.Y, multiplyBn.Z),
+                    new Vector3(multiplyCn.X, multiplyCn.Y, multiplyCn.Z));
             }
+
+            
         }
         
         private static Vector4 MultiplyBy(Vector4 v)

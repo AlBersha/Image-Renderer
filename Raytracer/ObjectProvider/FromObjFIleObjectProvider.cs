@@ -67,7 +67,23 @@ namespace Raytracer.ObjectProvider
                 Z = loadResult.Vertices[face[2].VertexIndex - 1].Z;
                 var C = new Vector3(X, Y, Z);
 
-                faces.Add(new Triangle(A, B, C));
+                var Xn = loadResult.Normals[face[0].NormalIndex - 1].X;
+                var Yn = loadResult.Normals[face[0].NormalIndex - 1].Y;
+                var Zn = loadResult.Normals[face[0].NormalIndex - 1].Z;
+                var An = new Vector3(Xn, Yn, Zn);
+                
+                Xn = loadResult.Normals[face[1].NormalIndex - 1].X;
+                Yn = loadResult.Normals[face[1].NormalIndex - 1].Y;
+                Zn = loadResult.Normals[face[1].NormalIndex - 1].Z;
+                var Bn = new Vector3(Xn, Yn, Zn);
+
+                Xn = loadResult.Normals[face[2].NormalIndex - 1].X;
+                Yn = loadResult.Normals[face[2].NormalIndex - 1].Y;
+                Zn = loadResult.Normals[face[2].NormalIndex - 1].Z;
+                var Cn = new Vector3(Xn, Yn, Zn);
+
+
+                faces.Add(new Triangle(A, B, C, An, Bn, Cn));
             }
 
             ObjectModel.Faces = faces;
