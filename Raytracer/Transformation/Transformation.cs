@@ -111,14 +111,15 @@ namespace Raytracer.Transformation
                 var multiplyAn = MultiplyBy(v4An);
                 var multiplyBn = MultiplyBy(v4Bn);
                 var multiplyCn = MultiplyBy(v4Cn);
-                
-                
+
+
                 object3D.Faces[i] = new Triangle(new Vector3(multiplyA.X, multiplyA.Y, multiplyA.Z),
                     new Vector3(multiplyB.X, multiplyB.Y, multiplyB.Z),
                     new Vector3(multiplyC.X, multiplyC.Y, multiplyC.Z),
-                    new Vector3(multiplyAn.X, multiplyAn.Y, multiplyAn.Z),
-                    new Vector3(multiplyBn.X, multiplyBn.Y, multiplyBn.Z),
-                    new Vector3(multiplyCn.X, multiplyCn.Y, multiplyCn.Z));
+                    f3.An, f3.Bn, f3.Cn);
+                    // new Vector3(multiplyAn.X, multiplyAn.Y, multiplyAn.Z),
+                    // new Vector3(multiplyBn.X, multiplyBn.Y, multiplyBn.Z),
+                    // new Vector3(multiplyCn.X, multiplyCn.Y, multiplyCn.Z));
             }
 
             

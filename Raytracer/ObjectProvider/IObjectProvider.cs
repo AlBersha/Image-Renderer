@@ -2,6 +2,6 @@
 {
     public interface IObjectFromFileProvider
     {
-        public ObjectModel ParseObjectToObjectModel(string pathToFile);
+        public ObjectModel ParseObject(string pathToFile);
     }
 }

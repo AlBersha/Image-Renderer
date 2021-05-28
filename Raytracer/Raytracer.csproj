@@ -9,6 +9,7 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.3.21201.4" />
       <PackageReference Include="OBJ3DWavefrontLoader" Version="1.0.3" />
       <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
+      <PackageReference Include="SceneFormat" Version="0.1.188" />
     </ItemGroup>
 
     <ItemGroup>

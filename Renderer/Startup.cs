@@ -91,7 +91,7 @@ namespace Renderer
 
         private void ExecuteRaytracing()
         {
-            var object3D = _object.ParseObjectToObjectModel(_commandProcessor.SourceFile); 
+            var object3D = _object.ParseObject(_commandProcessor.SourceFile); 
             
             // Transformation.RotateZ();
             Transformation.RotateX();

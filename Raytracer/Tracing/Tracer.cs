@@ -44,11 +44,11 @@ namespace Raytracer.Tracing
                     var nearestTriangleIntersectionPoint = new Vector3();
                     var minDistance = float.MaxValue;
                     var barycentricIntersectionPoint = new Vector3();   
+                    var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
                     while (priorityQueue.Count != 0)
                     {
                         var flag = false;
                         var node = priorityQueue.Dequeue();
-                        var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
                         var intersectedTriangle =
                             FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint, ref barycentricIntersectionPoint);
                         var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
@@ -78,6 +78,50 @@ namespace Raytracer.Tracing
                     if (nearestTriangle is null)
                     {
                         image[i].Add(new Pixel(232, 234, 246));
+                        // var newRay = pixelCenterPoint - sceneCreator.ParamsProvider.LightPosition;
+                        // t = 0;
+                        // priorityQueue = new SimplePriorityQueue<INode, float>();
+                        // if (IsRayIntersectBox(octree.Root.MinBoundary, octree.Root.MaxBoundary, pixelCenterPoint, newRay, ref t))
+                        // {
+                        //     priorityQueue.Enqueue(octree.Root,t);
+                        // }
+                        //
+                        // var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+                        //
+                        // var intersectedTriangle = new Triangle();
+                        //
+                        // while (priorityQueue.Count != 0)
+                        // {
+                        //     var flag = false;
+                        //     var node = priorityQueue.Dequeue();
+                        //     intersectedTriangle =
+                        //         FindIntersectionInBox(node.Faces, newRay, pixelCenterPoint, ref num, ref intersectionPoint, ref barycentricIntersectionPoint);
+                        //     
+                        //     
+                        //     if (node.IsLeaf())
+                        //     {
+                        //         if (flag)
+                        //             break;
+                        //     }
+                        //     else
+                        //     {
+                        //         foreach (var child in node.ChildNodes
+                        //             .Where(child => IsRayIntersectBox(child.MinBoundary, child.MaxBoundary, pixelCenterPoint, newRay, ref t)))
+                        //         {
+                        //             priorityQueue.Enqueue(child,t);
+                        //         }
+                        //     }
+                        // }
+                        //
+                        // if (intersectedTriangle != null && Vector3.Distance(pixelCenterPoint, sceneCreator.ParamsProvider.LightPosition) > Vector3.Distance(pixelCenterPoint, intersectionPoint))
+                        // {
+                        //     image[i].Add(new Pixel(0, 0, 0));
+                        // }
+                        // else
+                        // {
+                        //     image[i].Add(new Pixel(232, 234, 246));
+                        // }
+                        
                     }
                     else
                     {

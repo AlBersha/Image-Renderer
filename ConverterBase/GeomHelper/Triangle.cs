@@ -11,6 +11,11 @@ namespace ConverterBase.GeomHelper
         public Vector3 An;
         public Vector3 Bn;
         public Vector3 Cn;
+
+        public Triangle()
+        {
+            
+        }
         
         public Triangle(Vector3 a, Vector3 b, Vector3 c)
         {
