@@ -81,14 +81,14 @@ namespace Raytracer.Transformation
                 object3D.Vertices[i] = new Vector3(res.X, res.Y, res.Z);
             }
             
-            for (var i = 0; i < object3D.VerticesNormals.Count; i++)
-            {
-                var vn4 = new Vector4(object3D.VerticesNormals[i].X, object3D.VerticesNormals[i].Y,
-                    object3D.VerticesNormals[i].Z, 1);
-
-                var multiply = MultiplyBy(vn4);
-                object3D.VerticesNormals[i] = new Vector3(multiply.X, multiply.Y, multiply.Z);
-            }
+            // for (var i = 0; i < object3D.VerticesNormals.Count; i++)
+            // {
+            //     var vn4 = new Vector4(object3D.VerticesNormals[i].X, object3D.VerticesNormals[i].Y,
+            //         object3D.VerticesNormals[i].Z, 1);
+            //
+            //     var multiply = MultiplyBy(vn4);
+            //     object3D.VerticesNormals[i] = new Vector3(multiply.X, multiply.Y, multiply.Z);
+            // }
 
             for (var i = 0; i < object3D.Faces.Count; i++)
             {

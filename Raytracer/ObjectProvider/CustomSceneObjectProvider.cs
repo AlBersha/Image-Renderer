@@ -21,12 +21,7 @@ namespace Raytracer.ObjectProvider
             var fileStream = File.OpenRead(obj.MeshedObject.Reference);
             var object3D = objLoader.Load(fileStream);
 
-            LoadResultToObjectModel.GetVertices(object3D);
-            LoadResultToObjectModel.GetNormals(object3D);
-            LoadResultToObjectModel.GetFaces(object3D);
-            LoadResultToObjectModel.GetTextures(object3D);
-            
-            return ObjectModel;
+            return LoadResultToObjectModel.ToObjectModel(object3D);
         }
         
     }

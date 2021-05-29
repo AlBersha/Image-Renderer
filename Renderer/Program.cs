@@ -16,7 +16,7 @@ namespace Renderer
         {
             args = new[]
             {
-                "--source=C:\\Users\\obers\\KPI\\graphics\\cow.obj",
+                "--source=C:\\Users\\obers\\KPI\\graphics\\example_json.cowscene",
                 "--output=C:\\Users\\obers\\KPI\\graphics\\output.ppm"
             };
             

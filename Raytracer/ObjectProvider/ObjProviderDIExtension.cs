@@ -6,7 +6,7 @@ namespace Raytracer.ObjectProvider
     {
         public static void RegisterObjectProvider(this IServiceCollection collection)
         {
-            collection.AddScoped<IObjectFromFileProvider, FromObjFIleObjectProvider>();
+            collection.AddScoped<IObjectFromFileProvider, CustomSceneObjectProvider>();
         }
     }
 }

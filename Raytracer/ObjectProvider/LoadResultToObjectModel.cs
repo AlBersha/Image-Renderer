@@ -8,6 +8,16 @@ namespace Raytracer.ObjectProvider
     public static class LoadResultToObjectModel
     {
         private static ObjectModel ObjectModel { get; } = new ObjectModel();
+
+        public static ObjectModel ToObjectModel(LoadResult loadResult)
+        {
+            GetVertices(loadResult);
+            GetNormals(loadResult);
+            GetFaces(loadResult);
+            GetTextures(loadResult);
+
+            return ObjectModel;
+        }
         
         public static void GetVertices(LoadResult loadResult)
         {

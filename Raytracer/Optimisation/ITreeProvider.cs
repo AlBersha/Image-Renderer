@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
-using ConverterBase.GeomHelper;
-using Raytracer.ObjectProvider;
+﻿using Raytracer.ObjectProvider;
 
 namespace Raytracer.Optimisation
 {

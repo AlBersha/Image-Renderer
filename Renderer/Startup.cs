@@ -36,7 +36,7 @@ namespace Renderer
         {
             _commandProcessor.ProcessCommand(args);
 
-            if (_commandProcessor.SourceFormat != "obj")
+            if (_commandProcessor.SourceFormat != "obj" && _commandProcessor.SourceFormat != "cowscene")
             {
                 ExecuteConversion();
             }
