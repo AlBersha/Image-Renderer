@@ -30,9 +30,9 @@ namespace ConverterBase.GeomHelper
             B = b;
             C = c;
 
-            An = an;
-            Bn = bn;
-            Cn = cn;
+            An = Vector3.Normalize(an);
+            Bn = Vector3.Normalize(bn);
+            Cn = Vector3.Normalize(cn);
         }
 
         public Vector3 GetNormal()
@@ -96,11 +96,11 @@ namespace ConverterBase.GeomHelper
             if (t > EPSILON)
             {
                 outIntersectionPoint = rayOrigin + rayDirection * t;
-                
+
                 outBarycentricIntersectionPoint.X = 1 - u - v;
                 outBarycentricIntersectionPoint.Y = u;
                 outBarycentricIntersectionPoint.Z = v;
-
+                
                 return true;
             }
 

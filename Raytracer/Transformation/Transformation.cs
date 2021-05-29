@@ -76,19 +76,20 @@ namespace Raytracer.Transformation
                 var v3 = new Vector3(object3D.Vertices[i].X, object3D.Vertices[i].Y, object3D.Vertices[i].Z);
             
                 var v4 = new Vector4(v3.X, v3.Y, v3.Z, 1);
-                var res = MultiplyBy(v4);
+                var res = MultiplyBy(v4, TransformationMatrix);
             
                 object3D.Vertices[i] = new Vector3(res.X, res.Y, res.Z);
             }
+
+            Matrix4x4.Invert(TransformationMatrix, out var transformNormalsMatrix);
+            for (var i = 0; i < object3D.VerticesNormals.Count; i++)
+            {
+                var vn4 = new Vector4(object3D.VerticesNormals[i].X, object3D.VerticesNormals[i].Y,
+                    object3D.VerticesNormals[i].Z, 1);
             
-            // for (var i = 0; i < object3D.VerticesNormals.Count; i++)
-            // {
-            //     var vn4 = new Vector4(object3D.VerticesNormals[i].X, object3D.VerticesNormals[i].Y,
-            //         object3D.VerticesNormals[i].Z, 1);
-            //
-            //     var multiply = MultiplyBy(vn4);
-            //     object3D.VerticesNormals[i] = new Vector3(multiply.X, multiply.Y, multiply.Z);
-            // }
+                var multiply = MultiplyBy(vn4, transformNormalsMatrix);
+                object3D.VerticesNormals[i] = new Vector3(multiply.X, multiply.Y, multiply.Z);
+            }
 
             for (var i = 0; i < object3D.Faces.Count; i++)
             {
@@ -104,34 +105,34 @@ namespace Raytracer.Transformation
                 var v4Cn = new Vector4(f3.Cn.X, f3.Cn.Y, f3.Cn.Z, 1);
 
 
-                var multiplyA = MultiplyBy(v4A);
-                var multiplyB = MultiplyBy(v4B);
-                var multiplyC = MultiplyBy(v4C);
+                var multiplyA = MultiplyBy(v4A, TransformationMatrix);
+                var multiplyB = MultiplyBy(v4B, TransformationMatrix);
+                var multiplyC = MultiplyBy(v4C, TransformationMatrix);
                 
-                var multiplyAn = MultiplyBy(v4An);
-                var multiplyBn = MultiplyBy(v4Bn);
-                var multiplyCn = MultiplyBy(v4Cn);
+                var multiplyAn = MultiplyBy(v4An, transformNormalsMatrix);
+                var multiplyBn = MultiplyBy(v4Bn, transformNormalsMatrix);
+                var multiplyCn = MultiplyBy(v4Cn, transformNormalsMatrix);
 
 
                 object3D.Faces[i] = new Triangle(new Vector3(multiplyA.X, multiplyA.Y, multiplyA.Z),
                     new Vector3(multiplyB.X, multiplyB.Y, multiplyB.Z),
                     new Vector3(multiplyC.X, multiplyC.Y, multiplyC.Z),
-                    f3.An, f3.Bn, f3.Cn);
-                    // new Vector3(multiplyAn.X, multiplyAn.Y, multiplyAn.Z),
-                    // new Vector3(multiplyBn.X, multiplyBn.Y, multiplyBn.Z),
-                    // new Vector3(multiplyCn.X, multiplyCn.Y, multiplyCn.Z));
+                    // f3.An, f3.Bn, f3.Cn);
+                    new Vector3(multiplyAn.X, multiplyAn.Y, multiplyAn.Z),
+                    new Vector3(multiplyBn.X, multiplyBn.Y, multiplyBn.Z),
+                    new Vector3(multiplyCn.X, multiplyCn.Y, multiplyCn.Z));
             }
 
             
         }
         
-        private static Vector4 MultiplyBy(Vector4 v)
+        private static Vector4 MultiplyBy(Vector4 v, Matrix4x4 transformationMatrix)
         {
             return new Vector4(
-                TransformationMatrix.M11 * v.X + TransformationMatrix.M12 * v.Y + TransformationMatrix.M13 * v.Z + TransformationMatrix.M14 * v.W,
-                TransformationMatrix.M21 * v.X + TransformationMatrix.M22 * v.Y + TransformationMatrix.M23 * v.Z + TransformationMatrix.M24 * v.W,
-                TransformationMatrix.M31 * v.X + TransformationMatrix.M32 * v.Y + TransformationMatrix.M33 * v.Z + TransformationMatrix.M34 * v.W,
-                TransformationMatrix.M41 * v.X + TransformationMatrix.M42 * v.Y + TransformationMatrix.M43 * v.Z + TransformationMatrix.M44 * v.W
+                transformationMatrix.M11 * v.X + transformationMatrix.M12 * v.Y + transformationMatrix.M13 * v.Z + transformationMatrix.M14 * v.W,
+                transformationMatrix.M21 * v.X + transformationMatrix.M22 * v.Y + transformationMatrix.M23 * v.Z + transformationMatrix.M24 * v.W,
+                transformationMatrix.M31 * v.X + transformationMatrix.M32 * v.Y + transformationMatrix.M33 * v.Z + transformationMatrix.M34 * v.W,
+                transformationMatrix.M41 * v.X + transformationMatrix.M42 * v.Y + transformationMatrix.M43 * v.Z + transformationMatrix.M44 * v.W
             );
         }
     }

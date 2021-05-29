@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
-using ConverterBase.GeomHelper;
+﻿using System.IO;
 using ObjLoader.Loader.Loaders;
 
 namespace Raytracer.ObjectProvider
