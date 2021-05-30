@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using ConverterBase.GeomHelper;
 using ObjLoader.Loader.Loaders;
-using SceneFormat;
 
 namespace Raytracer.ObjectProvider
 {
@@ -19,8 +18,8 @@ namespace Raytracer.ObjectProvider
 
             return ObjectModel;
         }
-        
-        public static void GetVertices(LoadResult loadResult)
+
+        private static void GetVertices(LoadResult loadResult)
         {
             foreach (var vertex in loadResult.Vertices)
             {
@@ -28,15 +27,15 @@ namespace Raytracer.ObjectProvider
             }
         }
 
-        public static void GetNormals(LoadResult loadResult)
+        private static void GetNormals(LoadResult loadResult)
         {
             foreach (var normal in loadResult.Normals)
             {
                 ObjectModel.VerticesNormals.Add(new System.Numerics.Vector3(normal.X, normal.Y, normal.Z));
             }
         }
-        
-        public static void GetFaces(LoadResult loadResult)
+
+        private static void GetFaces(LoadResult loadResult)
         {
             var faces = new List<Triangle>();
             foreach (var face in loadResult.Groups[0].Faces)
@@ -78,7 +77,7 @@ namespace Raytracer.ObjectProvider
             ObjectModel.Faces = faces;
         }
 
-        public static void GetTextures(LoadResult loadResult)
+        private static void GetTextures(LoadResult loadResult)
         {
             foreach (var texture in loadResult.Textures)
             {

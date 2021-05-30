@@ -92,7 +92,6 @@ namespace Raytracer.Tracing
                     }
                     else
                     {
-                        
                         var (nearestTriangle, intersectionPoint, barycentricIntersectionPoint) = GetNearestTriangle(triangles, sceneCreator.ParamsProvider.Camera);
                         // var normal = nearestTriangle.GetNormal();
                         var normal = nearestTriangle.GetBarycentricNormal(barycentricIntersectionPoint);

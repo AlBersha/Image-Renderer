@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Raytracer.ObjectProvider;
 using Raytracer.Scene.Interfaces;
 using SceneFormat;
@@ -14,7 +13,7 @@ namespace Raytracer.Scene
         public IParamsProvider ParamsProvider { get; }
         private SceneFormat.Scene SceneData { get; set; }
         public IObjectFromFileProvider ObjectProvider { get; set; }
-        public ISceneIO SceneIo { get; set; } = new SceneIO();
+        private ISceneIO SceneIo { get; set; } = new SceneIO();
 
         public FromFileSceneCreator(IParamsProvider paramsProvider, IScreenProvider screen,
             IObjectFromFileProvider objectProvider)
@@ -57,28 +56,41 @@ namespace Raytracer.Scene
             var objects = new List<ObjectModel>();
             foreach (var sceneObject in SceneData.SceneObjects)
             {
-                objects.Add(ProcessObject(sceneObject));
+                var obj = ProcessObject(sceneObject);
+                if (obj != null)
+                {
+                    objects.Add(obj);
+                }
             }
             return objects;
         }
 
         private ObjectModel ProcessObject(SceneObject sceneObject)
         {
-            var objectPath = sceneObject.MeshedObject.Reference;
             var objectModel = new ObjectModel();
-            objectModel = ObjectProvider.ParseObject(objectPath);
+            try
+            {
+                var objectPath = sceneObject.MeshedObject.Reference;
+                objectModel = ObjectProvider.ParseObject(objectPath);
 
-            var rotate = sceneObject.Transform.Rotation;
-            var scale = sceneObject.Transform.Scale;
-            var translate = sceneObject.Transform.Position;
+                var rotate = sceneObject.Transform.Rotation;
+                var scale = sceneObject.Transform.Scale;
+                var translate = sceneObject.Transform.Position;
 
-            var transformation = new Transformation.Transformation();
-            transformation.RotateX((float) rotate.X);
-            transformation.RotateY((float) rotate.Y);
-            transformation.RotateZ((float) rotate.Z);
-            transformation.Scale(new Vector3((float) scale.X, (float) scale.Y, (float) scale.Z));
-            transformation.Translate(new Vector3((float) translate.X, (float) translate.Y, (float) translate.Z));
-            transformation.Transform(ref objectModel);
+                var transformation = new Transformation.Transformation();
+                transformation.RotateX((float) rotate.X);
+                transformation.RotateY((float) rotate.Y);
+                transformation.RotateZ((float) rotate.Z);
+                transformation.Scale(new Vector3((float) scale.X, (float) scale.Y, (float) scale.Z));
+                transformation.Translate(new Vector3((float) translate.X, (float) translate.Y, (float) translate.Z));
+                transformation.Transform(ref objectModel);
+
+                
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
 
             return objectModel;
         }

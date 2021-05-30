@@ -169,9 +169,9 @@ namespace Raytracer.Transformation
                 var multiplyB = MultiplyBy(v4B, TransformationMatrix);
                 var multiplyC = MultiplyBy(v4C, TransformationMatrix);
                 
-                // var multiplyAn = MultiplyBy(v4An, transformNormalsMatrix);
-                // var multiplyBn = MultiplyBy(v4Bn, transformNormalsMatrix);
-                // var multiplyCn = MultiplyBy(v4Cn, transformNormalsMatrix);
+                var multiplyAn = MultiplyBy(v4An, transformNormalsMatrix);
+                var multiplyBn = MultiplyBy(v4Bn, transformNormalsMatrix);
+                var multiplyCn = MultiplyBy(v4Cn, transformNormalsMatrix);
 
 
                 object3D.Faces[i] = new Triangle(new Vector3(multiplyA.X, multiplyA.Y, multiplyA.Z),
