@@ -7,10 +7,11 @@ namespace Raytracer.ObjectProvider
 {
     public static class LoadResultToObjectModel
     {
-        private static ObjectModel ObjectModel { get; } = new ObjectModel();
+        private static ObjectModel ObjectModel { get; set; }
 
         public static ObjectModel ToObjectModel(LoadResult loadResult)
         {
+            ObjectModel = new ObjectModel();
             GetVertices(loadResult);
             GetNormals(loadResult);
             GetFaces(loadResult);

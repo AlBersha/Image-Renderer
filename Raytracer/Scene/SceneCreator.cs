@@ -1,18 +1,25 @@
-﻿using Raytracer.Scene.Interfaces;
+﻿using System.Collections.Generic;
+using Raytracer.ObjectProvider;
+using Raytracer.Scene.Interfaces;
 
 namespace Raytracer.Scene
 {
     public class SceneCreator: ISceneCreator
     {
-        private IScreenProvider _screen;
+        private readonly IScreenProvider _screen;
         public IParamsProvider ParamsProvider { get; }
+        public IObjectFromFileProvider ObjectProvider { get; set; }
+        public SceneCreator(IParamsProvider paramsProvider, IScreenProvider screen, IObjectFromFileProvider objectProvider)
+            => (_screen, ParamsProvider, ObjectProvider) = (screen, paramsProvider, objectProvider);
 
-        public SceneCreator(IParamsProvider paramsProvider, IScreenProvider screen)
-            => (_screen, ParamsProvider) = (screen, paramsProvider);
-
-        public void CreateScreen()
+        public void CreateScreen(string filePath)
         {
             _screen.SetScreenProperties(ParamsProvider);
+        }
+
+        public List<ObjectModel> GetObjects(string filePath)
+        {
+             return new List<ObjectModel> {ObjectProvider.ParseObject(filePath)};
         }
 
         public float SetXScreenCoordinate(float x)

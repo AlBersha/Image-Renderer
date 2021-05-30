@@ -8,6 +8,6 @@ namespace Raytracer.Tracing
     public interface ITracer
     {
 
-        public List<List<Pixel>> Trace(ISceneCreator sceneCreator, ITreeProvider octree);
+        public List<List<Pixel>> Trace(ISceneCreator sceneCreator, List<INode> octrees);
     }
 }

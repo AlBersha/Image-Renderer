@@ -8,7 +8,7 @@ namespace Raytracer.Scene
         public static void RegisterScene(this IServiceCollection collection)
         {
             collection.AddScoped<IScreenProvider, ScreenProvider>();
-            collection.AddScoped<ISceneCreator, SceneCreator>();
+            collection.AddScoped<ISceneCreator, FromFileSceneCreator>();
             collection.AddScoped<IParamsProvider, ParamsProvider>();
         }
     }
