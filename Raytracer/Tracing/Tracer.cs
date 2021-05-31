@@ -126,7 +126,7 @@ namespace Raytracer.Tracing
         }
         
         // find intersection with sphere
-        private static bool IsSphereIntersect(Vector3 origin, Vector3 direction, ref Vector3 normal, ref Vector3 intersectionPoint)
+        private bool IsSphereIntersect(Vector3 origin, Vector3 direction, ref Vector3 normal, ref Vector3 intersectionPoint)
         {
             // sphere equation
             Vector3 center = new Vector3(-.5f, -.3f, 1.5f);
@@ -154,7 +154,7 @@ namespace Raytracer.Tracing
 
             return false;
         }
-        
+
         private (Triangle, Vector3, Vector3) GetNearestTriangle(List<(Triangle, Vector3, Vector3)> triangles, Vector3 camera)
         {
             var minDistance = float.MaxValue;
