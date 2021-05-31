@@ -98,6 +98,7 @@ namespace Raytracer.Tracing
                         var lightRay = Vector3.Normalize(sceneCreator.ParamsProvider.LightPosition - intersectionPoint);
                         var dotProduct = Vector3.Dot(lightRay, normal);
                         var facingRatio = Math.Max(0, dotProduct);
+                        var albedo = 0.18;
                         
                         //var facingRatio = 0.18f / Math.PI * 30 * 0.5 * Math.Max(0f, dotProduct); 
                         image[i].Add(new Pixel((byte) (159 * facingRatio), (byte) (168 * facingRatio),
@@ -113,6 +114,7 @@ namespace Raytracer.Tracing
             
             return image;
         }
+        
 
         private (Triangle, Vector3, Vector3) GetNearestTriangle(List<(Triangle, Vector3, Vector3)> triangles, Vector3 camera)
         {

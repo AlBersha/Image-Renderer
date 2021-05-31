@@ -87,7 +87,7 @@ namespace Raytracer.Scene
 
                 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
