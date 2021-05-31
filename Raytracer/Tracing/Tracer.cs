@@ -7,6 +7,7 @@ using ConverterBase.GeomHelper;
 using Priority_Queue;
 using Raytracer.Optimisation;
 using Raytracer.Scene.Interfaces;
+using static System.Numerics.Vector3;
 
 namespace Raytracer.Tracing
 {
@@ -31,7 +32,7 @@ namespace Raytracer.Tracing
                     
                     var pixelCenterPoint = new Vector3(x, y, screenZ);
                     var rayDirection = pixelCenterPoint - camera;
-                    rayDirection = Vector3.Normalize(rayDirection);
+                    rayDirection = Normalize(rayDirection);
                   
                     float t = 0;
                     var priorityQueue = new SimplePriorityQueue<INode, float>();
@@ -55,7 +56,7 @@ namespace Raytracer.Tracing
                             var node = priorityQueue.Dequeue();
                             var intersectedTriangle =
                                 FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint, ref barycentricIntersectionPoint);
-                            var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
+                            var distanceBetweenCameraAndTriangle = Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
                             
                             if (distanceBetweenCameraAndTriangle < minDistance)
                             {
@@ -85,22 +86,31 @@ namespace Raytracer.Tracing
                         }
                         
                     }
-                    
-                    if (!triangles.Any())
+
+                    var normal = new Vector3();
+                    var sphereIntersectionPoint = new Vector3();
+                    if (IsSphereIntersect(camera, rayDirection, ref normal, ref sphereIntersectionPoint))
+                    {
+                        var lightRay = Normalize(sceneCreator.ParamsProvider.LightPosition - sphereIntersectionPoint);
+                        var dotProduct = Dot(lightRay, normal);
+                        var facingRatio = Math.Max(0, dotProduct);
+                        image[i].Add(new Pixel((byte)(239*facingRatio), (byte)(154*facingRatio), (byte)(154*facingRatio)));
+                    }
+                    else if (!triangles.Any())
                     {
                         image[i].Add(new Pixel(232, 234, 246));
                     }
                     else
                     {
+                        //var facingRatio = 0.18f / Math.PI * 30 * 0.5 * Math.Max(0f, dotProduct); 
                         var (nearestTriangle, intersectionPoint, barycentricIntersectionPoint) = GetNearestTriangle(triangles, sceneCreator.ParamsProvider.Camera);
-                        // var normal = nearestTriangle.GetNormal();
-                        var normal = nearestTriangle.GetBarycentricNormal(barycentricIntersectionPoint);
-                        var lightRay = Vector3.Normalize(sceneCreator.ParamsProvider.LightPosition - intersectionPoint);
-                        var dotProduct = Vector3.Dot(lightRay, normal);
+                        // normal = nearestTriangle.GetNormal();
+                        normal = nearestTriangle.GetBarycentricNormal(barycentricIntersectionPoint);
+                        var lightRay = Normalize(sceneCreator.ParamsProvider.LightPosition - intersectionPoint);
+                        var dotProduct = Dot(lightRay, normal);
                         var facingRatio = Math.Max(0, dotProduct);
                         var albedo = 0.18;
-                        
-                        //var facingRatio = 0.18f / Math.PI * 30 * 0.5 * Math.Max(0f, dotProduct); 
+                            
                         image[i].Add(new Pixel((byte) (159 * facingRatio), (byte) (168 * facingRatio),
                             (byte) (218 * facingRatio)));
                     }
@@ -115,7 +125,36 @@ namespace Raytracer.Tracing
             return image;
         }
         
+        // find intersection with sphere
+        private static bool IsSphereIntersect(Vector3 origin, Vector3 direction, ref Vector3 normal, ref Vector3 intersectionPoint)
+        {
+            // sphere equation
+            Vector3 center = new Vector3(-.5f, -.3f, 1.5f);
+            var r = .16f;
+            Vector3 k = origin - center;
 
+            var a = Dot(direction, direction);
+            var b = 2 * Dot(direction, k);
+            var c = Dot(k, k) - r * r;
+
+            var D = b * b - 4 * a * c;
+            if (D >=0)
+            {
+                var t1 = (-b + D) / (2 * a);
+                var t2 = (-b - D) / (2 * a);
+
+                var v1 = origin + direction * t1;
+                var v2 = origin + direction * t2;
+
+                intersectionPoint = Distance(origin, v1) < Distance(origin, v2) ? v1 : v2;
+                
+                normal = Normalize(center - intersectionPoint);
+                return true;
+            }
+
+            return false;
+        }
+        
         private (Triangle, Vector3, Vector3) GetNearestTriangle(List<(Triangle, Vector3, Vector3)> triangles, Vector3 camera)
         {
             var minDistance = float.MaxValue;
@@ -124,7 +163,7 @@ namespace Raytracer.Tracing
             var barycentricIntersectionPointOfNearestTriangle = new Vector3();
             foreach (var triangle in triangles)
             {
-                var distanceBetweenCameraAndTriangle = Vector3.Distance(triangle.Item2, camera);
+                var distanceBetweenCameraAndTriangle = Distance(triangle.Item2, camera);
                 if (distanceBetweenCameraAndTriangle > 0 && distanceBetweenCameraAndTriangle < minDistance)
                 {
                     minDistance = distanceBetweenCameraAndTriangle;
@@ -146,7 +185,7 @@ namespace Raytracer.Tracing
                 num++;
                 if (triangle.IsIntersectTriangle(camera, rayDirection, ref intersectionPoint, ref outBarycentricIntersectionPoint))
                 {
-                    var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, camera);
+                    var distanceBetweenCameraAndTriangle = Distance(intersectionPoint, camera);
                     
                     if (distanceBetweenCameraAndTriangle < minDistance)
                     {
@@ -189,5 +228,7 @@ namespace Raytracer.Tracing
             t = tMin < 0 ? tMax : tMin;
             return true;
         }
+        
+        
     }
 }
