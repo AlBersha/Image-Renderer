@@ -52,7 +52,7 @@ namespace ConsoleProcessor
                 Environment.Exit(1);
             }
             
-            if (GoalFormat == "" && SourceFormat != "obj")
+            if (GoalFormat == "" && !SourceFormat.Contains("obj") && !SourceFormat.Contains("cowscene"))
             {
                 Console.WriteLine("Argument --goal-format is either entered incorrectly or is missing");
                 Environment.Exit(1);

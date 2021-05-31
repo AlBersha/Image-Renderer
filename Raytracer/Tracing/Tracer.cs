@@ -12,7 +12,7 @@ namespace Raytracer.Tracing
 {
     public class Raytracer: ITracer
     {   
-        public List<List<Pixel>> Trace(ISceneCreator sceneCreator, ITreeProvider octree)
+        public List<List<Pixel>> Trace(ISceneCreator sceneCreator, List<INode> octrees)
         {
             var camera = sceneCreator.ParamsProvider.Camera;
             var screenZ = sceneCreator.ParamsProvider.ScreenZ;
@@ -35,54 +35,70 @@ namespace Raytracer.Tracing
                   
                     float t = 0;
                     var priorityQueue = new SimplePriorityQueue<INode, float>();
-                    if (IsRayIntersectBox(octree.Root.MinBoundary, octree.Root.MaxBoundary, sceneCreator.ParamsProvider.Camera, rayDirection, ref t))
+                    var triangles = new List<(Triangle, Vector3, Vector3)>();    
+                    foreach (var octree in octrees)
                     {
-                        priorityQueue.Enqueue(octree.Root,t);
-                    }
+                        if (IsRayIntersectBox(octree.MinBoundary, octree.MaxBoundary, sceneCreator.ParamsProvider.Camera, rayDirection, ref t))
+                        {
+                            priorityQueue.Enqueue(octree,t);
+                        }
 
-                    Triangle nearestTriangle = null;
-                    var nearestTriangleIntersectionPoint = new Vector3();
-                    var minDistance = float.MaxValue;
-                    while (priorityQueue.Count != 0)
-                    {
-                        var flag = false;
-                        var node = priorityQueue.Dequeue();
+                        Triangle nearestTriangle = null;
+                        var nearestTriangleIntersectionPoint = new Vector3();
+                        var minDistance = float.MaxValue;
+                        var barycentricIntersectionPoint = new Vector3();   
                         var intersectionPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-                        var intersectedTriangle =
-                            FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint);
-                        var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
-                        if (distanceBetweenCameraAndTriangle < minDistance)
+                        var barycentricIntersectionPointOfNearestTriangle = new Vector3();
+                        var flag = false;
+                        while (priorityQueue.Count != 0)
                         {
-                            minDistance = distanceBetweenCameraAndTriangle;
-                            nearestTriangle = intersectedTriangle;
-                            flag = true;
-                        }
-                        
-                        if (node.IsLeaf())
-                        {
-                            if (flag)
-                                break;
-                        }
-                        else
-                        {
-                            foreach (var child in node.ChildNodes
-                                .Where(child => IsRayIntersectBox(child.MinBoundary, child.MaxBoundary, sceneCreator.ParamsProvider.Camera, rayDirection, ref t)))
+                            var node = priorityQueue.Dequeue();
+                            var intersectedTriangle =
+                                FindIntersectionInBox(node.Faces, rayDirection, sceneCreator.ParamsProvider.Camera, ref num, ref intersectionPoint, ref barycentricIntersectionPoint);
+                            var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, sceneCreator.ParamsProvider.Camera);
+                            
+                            if (distanceBetweenCameraAndTriangle < minDistance)
                             {
-                                priorityQueue.Enqueue(child,t);
+                                minDistance = distanceBetweenCameraAndTriangle;
+                                nearestTriangle = intersectedTriangle;
+                                nearestTriangleIntersectionPoint = intersectionPoint;
+                                barycentricIntersectionPointOfNearestTriangle = barycentricIntersectionPoint;
+                                flag = true;
+                            }
+                            
+                            if (node.IsLeaf())
+                            {
+                                if (flag)
+                                {
+                                    triangles.Add((nearestTriangle, nearestTriangleIntersectionPoint, barycentricIntersectionPointOfNearestTriangle));
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                foreach (var child in node.ChildNodes
+                                    .Where(child => IsRayIntersectBox(child.MinBoundary, child.MaxBoundary, sceneCreator.ParamsProvider.Camera, rayDirection, ref t)))
+                                {
+                                    priorityQueue.Enqueue(child,t);
+                                }
                             }
                         }
+                        
                     }
                     
-                    if (nearestTriangle is null)
+                    if (!triangles.Any())
                     {
                         image[i].Add(new Pixel(232, 234, 246));
                     }
                     else
                     {
-                        var normal = nearestTriangle.GetNormal();
-                        var lightRay = Vector3.Normalize(sceneCreator.ParamsProvider.LightPosition - nearestTriangleIntersectionPoint);
+                        var (nearestTriangle, intersectionPoint, barycentricIntersectionPoint) = GetNearestTriangle(triangles, sceneCreator.ParamsProvider.Camera);
+                        // var normal = nearestTriangle.GetNormal();
+                        var normal = nearestTriangle.GetBarycentricNormal(barycentricIntersectionPoint);
+                        var lightRay = Vector3.Normalize(sceneCreator.ParamsProvider.LightPosition - intersectionPoint);
                         var dotProduct = Vector3.Dot(lightRay, normal);
                         var facingRatio = Math.Max(0, dotProduct);
+                        var albedo = 0.18;
                         
                         //var facingRatio = 0.18f / Math.PI * 30 * 0.5 * Math.Max(0f, dotProduct); 
                         image[i].Add(new Pixel((byte) (159 * facingRatio), (byte) (168 * facingRatio),
@@ -99,14 +115,36 @@ namespace Raytracer.Tracing
             return image;
         }
         
-        private Triangle FindIntersectionInBox(List<Triangle> facesInBox, Vector3 rayDirection, Vector3 camera, ref int num, ref Vector3 intersectionPoint)
+
+        private (Triangle, Vector3, Vector3) GetNearestTriangle(List<(Triangle, Vector3, Vector3)> triangles, Vector3 camera)
+        {
+            var minDistance = float.MaxValue;
+            var nearestTriangle = new Triangle();
+            var nearestTriangleIntersectionPoint = new Vector3();
+            var barycentricIntersectionPointOfNearestTriangle = new Vector3();
+            foreach (var triangle in triangles)
+            {
+                var distanceBetweenCameraAndTriangle = Vector3.Distance(triangle.Item2, camera);
+                if (distanceBetweenCameraAndTriangle > 0 && distanceBetweenCameraAndTriangle < minDistance)
+                {
+                    minDistance = distanceBetweenCameraAndTriangle;
+                    nearestTriangle = triangle.Item1;
+                    nearestTriangleIntersectionPoint = triangle.Item2;
+                    barycentricIntersectionPointOfNearestTriangle = triangle.Item3;
+                }
+            }
+
+            return (nearestTriangle, nearestTriangleIntersectionPoint, barycentricIntersectionPointOfNearestTriangle);
+        }
+        
+        private Triangle FindIntersectionInBox(List<Triangle> facesInBox, Vector3 rayDirection, Vector3 camera, ref int num, ref Vector3 intersectionPoint, ref Vector3 outBarycentricIntersectionPoint)
         {
             Triangle nearestTriangle = null;
             var minDistance = float.MaxValue;
             foreach (var triangle in facesInBox)
             {
                 num++;
-                if (triangle.IsIntersectTriangle(camera, rayDirection, ref intersectionPoint))
+                if (triangle.IsIntersectTriangle(camera, rayDirection, ref intersectionPoint, ref outBarycentricIntersectionPoint))
                 {
                     var distanceBetweenCameraAndTriangle = Vector3.Distance(intersectionPoint, camera);
                     

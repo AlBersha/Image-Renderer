@@ -7,7 +7,6 @@ using Raytracer.ObjectProvider;
 using Raytracer.Optimisation;
 using Raytracer.Scene;
 using Raytracer.Tracing;
-using Raytracer.Transformation;
 
 namespace Renderer
 {
@@ -15,11 +14,18 @@ namespace Renderer
     {
         private static Task Main(string[] args)
         {
+            args = new[]
+            {
+                "--source=C:\\Users\\obers\\KPI\\graphics\\example_json.cowscene",
+                "--output=C:\\Users\\obers\\KPI\\graphics\\output.ppm"
+            };
+            
             using var host = CreateHostBuilder(args).Build();
             
             ExemplifyScoping(host.Services, args);
             
             return host.RunAsync();
+
         }
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>

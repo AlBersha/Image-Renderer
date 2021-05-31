@@ -15,7 +15,7 @@ namespace Raytracer.Optimisation
             Root = new OctreeNode(Vector3.Zero, Vector3.One, new List<Triangle>(), null);
         }
 
-        public ITreeProvider CreateTree(ObjectModel object3D)
+        public INode CreateTree(ObjectModel object3D)
         {
             Vector3 pMin = Vector3.Zero;
             Vector3 pMax = Vector3.Zero;
@@ -29,7 +29,7 @@ namespace Raytracer.Optimisation
             
             Console.WriteLine($"Octree build time: {time} s");
 
-            return this;
+            return Root;
         }
         
         private void BoundingBoxCoordinates(ObjectModel object3D, ref Vector3 pMin, ref Vector3 pMax)

@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BMPReader;
 using ConsoleProcessor;
 using ConverterBase;
@@ -36,7 +38,7 @@ namespace Renderer
         {
             _commandProcessor.ProcessCommand(args);
 
-            if (_commandProcessor.SourceFormat != "obj")
+            if (_commandProcessor.SourceFormat != "obj" && _commandProcessor.SourceFormat != "cowscene")
             {
                 ExecuteConversion();
             }
@@ -91,20 +93,22 @@ namespace Renderer
 
         private void ExecuteRaytracing()
         {
-            var object3D = _object.ParseObjectToObjectModel(_commandProcessor.SourceFile); 
-            
+            _sceneCreator.CreateScreen(_commandProcessor.SourceFile);
+            var objects = _sceneCreator.GetObjects(_commandProcessor.SourceFile);
+            // var object3D = _object.ParseObject(_commandProcessor.SourceFile);
+            var trees = objects.Select(obj => _treeProvider.CreateTree(obj)).ToList();
+
             // Transformation.RotateZ();
-            Transformation.RotateX();
+            // Transformation.RotateX();
             // Transformation.RotateY();
-            Transformation.Scale();
-            Transformation.Translate();
-            Transformation.Transform(ref object3D);
+            // Transformation.Scale();
+            // Transformation.Translate();
+            // Transformation.Transform(ref object3D);
 
-            _treeProvider.CreateTree(object3D);
+            // _treeProvider.CreateTree(object3D);
             
-            _sceneCreator.CreateScreen();
 
-            var pixels = _tracer.Trace(_sceneCreator, _treeProvider);
+            var pixels = _tracer.Trace(_sceneCreator, trees);
 
             var image = new PPM((int)_sceneCreator.ParamsProvider.ImageWidth, (int)_sceneCreator.ParamsProvider.ImageHeight, pixels);
             var ppmWriter = new PPMWriter();
