@@ -52,11 +52,12 @@ namespace Raytracer.Transformation
 
         public void RotateX(float angle)
         {
+            var radAngle = angle * Math.PI / 180;
             var rotationX = new Matrix4x4 
             (
                 1, 0, 0, 0,
-                0, (float) Math.Cos(angle), -(float)Math.Sin(angle), 0,
-                0, (float) Math.Sin(angle), (float) Math.Cos(angle), 0,
+                0, (float) Math.Cos(radAngle), -(float)Math.Sin(radAngle), 0,
+                0, (float) Math.Sin(radAngle), (float) Math.Cos(radAngle), 0,
                 0, 0, 0, 1
             );
             TransformationMatrix *= rotationX;
@@ -69,10 +70,11 @@ namespace Raytracer.Transformation
         
         public void RotateY(float angle)
         {
+            var radAngle = angle * Math.PI / 180;
             var rotationY = new Matrix4x4(
-                (float) Math.Cos(angle), 0, (float) Math.Sin(angle), 0,
+                (float) Math.Cos(radAngle), 0, (float) Math.Sin(radAngle), 0,
                 0, 1, 0, 0,
-                -(float) Math.Sin(angle), 0, (float) Math.Cos(angle), 0,
+                -(float) Math.Sin(radAngle), 0, (float) Math.Cos(radAngle), 0,
                 0, 0, 0, 1
             );
             TransformationMatrix *= rotationY;
@@ -85,9 +87,10 @@ namespace Raytracer.Transformation
 
         public void RotateZ(float angle)
         {
+            var radAngle = angle * Math.PI / 180;
             var rotateZ = new Matrix4x4(
-                (float) Math.Cos(angle), -(float) Math.Sin(angle), 0, 0,
-                (float) Math.Sin(angle), (float) Math.Cos(angle), 0, 0,
+                (float) Math.Cos(radAngle), -(float) Math.Sin(radAngle), 0, 0,
+                (float) Math.Sin(radAngle), (float) Math.Cos(radAngle), 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1
             );
