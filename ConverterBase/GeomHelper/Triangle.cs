@@ -42,6 +42,10 @@ namespace ConverterBase.GeomHelper
 
         public Vector3 GetBarycentricNormal(Vector3 point)
         {
+            if (An == Vector3.Zero || Bn == Vector3.Zero || Cn == Vector3.Zero )
+            {
+                return GetNormal();
+            }
             return Vector3.Normalize(point.X * An + point.Y * Bn + point.Z * Cn);
         }
         
