@@ -2,7 +2,7 @@ namespace PNGFormat
 {
     using System.Collections.Generic;
 
-    public class CRC
+    public static class CRC
     {
         private const uint Polynomial = 0xEDB88320;
 

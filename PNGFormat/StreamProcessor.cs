@@ -3,7 +3,7 @@ namespace PNGFormat
     using System;
     using System.IO;
 
-    public class StreamProcessor
+    public static class StreamProcessor
     {
         public static int ReadBigEndianInt32(Stream stream)
         {

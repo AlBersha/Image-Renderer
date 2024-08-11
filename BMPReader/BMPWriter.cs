@@ -9,7 +9,7 @@ namespace BMPReader
     {
         public bool WriteImage(IImage image, string outputPath)
         {
-            BMPHeader bmpheader = new BMPHeader(image.Data[0].Count, image.Data.Count);
+            BmpHeader bmpheader = new BmpHeader(image.Data[0].Count, image.Data.Count);
 
             using (BinaryWriter writer = new BinaryWriter(File.Open(outputPath, FileMode.Create)))
             {

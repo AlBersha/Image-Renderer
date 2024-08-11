@@ -2,7 +2,7 @@ namespace PNGFormat
 {
     using System.Collections.Generic;
 
-    public class Adam7
+    public static class Adam7
     {
         private static  readonly IReadOnlyDictionary<int, int[]> PassToScanlineGridIndex = new Dictionary<int, int[]>
         {

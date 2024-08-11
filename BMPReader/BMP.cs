@@ -4,7 +4,7 @@ namespace BMPReader
     using System.Collections.Generic;
     using ConverterBase;
 
-    public struct BMPHeader
+    public struct BmpHeader
     {
         public byte[] bfType;
         public int bfSize;
@@ -23,7 +23,7 @@ namespace BMPReader
         public Int32 biClrUsed;       
         public Int32 biClrImportant;
 
-        public BMPHeader(int width, int height)
+        public BmpHeader(int width, int height)
         {
             int roundWidth = (width * 3) + ((width * 3) % 4);
             bfType = new byte[2];
@@ -50,7 +50,7 @@ namespace BMPReader
     public class BMP: IImage
     {
         private readonly int _wigth;
-        public BMPHeader BmpHeader;
+        public BmpHeader BmpHeader;
         public List<List<Pixel>> Data { get; set; }
 
         public BMP()
@@ -61,7 +61,7 @@ namespace BMPReader
 
         public BMP(int width, int height, List<List<Pixel>> imageData)
         {
-            BmpHeader = new BMPHeader(width, height);
+            BmpHeader = new BmpHeader(width, height);
             Data = imageData;
         }
     }

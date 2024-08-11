@@ -62,13 +62,13 @@ namespace PPMFormat
                         for (int j = 0; j < ppmFileData.Width; j++)
                         {
                             Pixel item = new Pixel();
-                            var tmp = byte.TryParse(words[0], out item.Red);
+                            byte.TryParse(words[0], out item.Red);
                             words.RemoveAt(0);
                         
-                            tmp = byte.TryParse(words[0], out item.Green);
+                            byte.TryParse(words[0], out item.Green);
                             words.RemoveAt(0);
                         
-                            tmp = byte.TryParse(words[0], out item.Blue);
+                            byte.TryParse(words[0], out item.Blue);
                             words.RemoveAt(0);
                             
                             row.Add(item);

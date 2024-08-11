@@ -2,7 +2,7 @@ namespace PNGFormat
 {
     using System;
 
-    public class Decoder
+    public static class Decoder
     {
         public static (byte bytesPerPixel, byte samplesPerPixel) GetBytesAndSamplesPerPixel(ImageHeader header)
         {

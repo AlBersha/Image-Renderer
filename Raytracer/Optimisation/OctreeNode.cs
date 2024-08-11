@@ -7,7 +7,6 @@ namespace Raytracer.Optimisation
     public class OctreeNode: INode
     {
         public List<INode> ChildNodes { get; set; }
-        //public OctreeNode Parent;
         public List<Triangle> Faces { get; set; }
         public Vector3 MinBoundary { get; }
         public Vector3 MaxBoundary { get; }
@@ -18,7 +17,6 @@ namespace Raytracer.Optimisation
             MaxBoundary = pMax;
             Faces = new List<Triangle>(faces);
 
-           // Parent = parent;
             ChildNodes = null;
         }
 

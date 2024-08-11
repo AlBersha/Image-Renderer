@@ -114,8 +114,6 @@ namespace PNGFormat
                         {
                             throw new InvalidOperationException($"CRC calculated {result} did not match file {crcActual} for chunk: {header.Name}.");
                         }
-
-                        // settings?.ChunkVisitor?.Visit(stream, imageHeader, header, bytes, crc);
                     }
 
                     memoryStream.Flush();

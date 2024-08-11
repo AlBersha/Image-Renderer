@@ -1,6 +1,5 @@
 namespace PNGFormat
 {
-    using System;
 
     public class Chunk
     {
